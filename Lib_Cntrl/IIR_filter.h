@@ -23,5 +23,6 @@ private:
     float *B;
     float *A;
     float a0,b0;
+    float Ts, y_old;
     uint8_t nb,na;
 };

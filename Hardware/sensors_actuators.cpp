@@ -13,6 +13,9 @@ sensors_actuators::sensors_actuators(float Ts) : counter(PA_8, PA_9),
     counter.reset();   // encoder reset
     imu.init_inav();
     imu.configuration();
+    ax2ax = LinearCharacteristics(-16380,16480,-9.81,9.81);             // parametrize object based on sensor values from calibration
+    ay2ay = LinearCharacteristics(-16950,15830,-9.81,9.81);
+    gz2gz = LinearCharacteristics(-32767,32768,-1000*PI/180,1000*PI/180);
 }
 // Deconstructor
 sensors_actuators::~sensors_actuators() {} 
@@ -22,9 +25,9 @@ void sensors_actuators::read_sensors_calc_speed(void)
     phi_fw = uw(counter);
     Vphi_fw = 0;//
     //-------------- read imu ------------
-    accx = imu.readAcc_raw(1);
-    accy = -imu.readAcc_raw(0);
-    gyrz = imu.readGyro_raw(2);
+    accx = ax2ax(imu.readAcc_raw(1));
+    accy = ay2ay(-imu.readAcc_raw(0));
+    gyrz = gz2gz(imu.readGyro_raw(2));
 }
 
 void sensors_actuators::enable_escon(void)

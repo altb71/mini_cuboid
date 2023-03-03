@@ -4,6 +4,7 @@
 #include "ControllerLoop.h"
 #include "sensors_actuators.h"
 #include "state_machine.h"
+#include "IIR_filter.h"
 
 #define WAIT_MS(x) ThisThread::sleep_for(chrono::milliseconds(x));
 
@@ -32,6 +33,10 @@ int main()
     loop.start_loop();
     WAIT_MS(20);
     sm.start_loop();
+    IIR_filter lp(0.1,Ts,1);        // short hack, to test filter
+    for(uint16_t k=0;k<100;k++)
+        printf("%f ",lp(1));        // do a step response
+
     while(1)
         {
         WAIT_MS(500);
