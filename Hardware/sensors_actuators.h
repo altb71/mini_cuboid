@@ -46,6 +46,7 @@ private:
     float phi_fw,phi_bd;          // motor angle /rad
     float Vphi_fw;           // motor speed / rad / s
     float accx,accy,gyrz;       // accelerations and gyroscope
+    void est_angle(void);
     void but_pressed(void);
     void but_released(void);
     bool key_was_pressed;

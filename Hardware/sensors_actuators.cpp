@@ -23,12 +23,22 @@ sensors_actuators::~sensors_actuators() {}
 void sensors_actuators::read_sensors_calc_speed(void)
 {
     phi_fw = uw(counter);
+    est_angle();            // complementary filter
     Vphi_fw = 0;//
     //-------------- read imu ------------
     accx = ax2ax(imu.readAcc_raw(1));
     accy = ay2ay(-imu.readAcc_raw(0));
     gyrz = gz2gz(imu.readGyro_raw(2));
 }
+
+/* est_angle: estimate angle from acc and gyro data. This function would also fit to the "sensors_actuators"- class
+but here it is better visible for students. 
+*/
+void sensors_actuators::est_angle(void)
+{
+    ;
+}
+
 
 void sensors_actuators::enable_escon(void)
 {

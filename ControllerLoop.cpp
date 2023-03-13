@@ -23,7 +23,6 @@ void ControllerLoop::loop(void){
         ThisThread::flags_wait_any(threadFlag);
         // THE LOOP ------------------------------------------------------------
         m_sa->read_sensors_calc_speed();       // first read all sensors, calculate mtor speed
-        est_angle();            // see below, not implemented yet
 
         // -------------------------------------------------------------
         //m_sa->enable_escon();
@@ -41,13 +40,6 @@ void ControllerLoop::start_loop(void)
     ticker.attach(callback(this, &ControllerLoop::sendSignal), Ts);
 }
 
-/* est_angle: estimate angle from acc and gyro data. This function would also fit to the "sensors_actuators"- class
-but here it is better visible for students. 
-*/
-float ControllerLoop::est_angle(void)
-{
-    return 0;
-}
 
 void ControllerLoop::enable_vel_cntrl(void)
 {
