@@ -18,15 +18,20 @@ ControllerLoop::~ControllerLoop() {}
 // ----------------------------------------------------------------------------
 // this is the main loop called every Ts with high priority
 void ControllerLoop::loop(void){
+
+    float K2[2]{-1.3924,-0.0864}; // based on modelling cuboid with EV -10+-10i
+    float km = 36.9e-3;
     while(1)
         {
         ThisThread::flags_wait_any(threadFlag);
         // THE LOOP ------------------------------------------------------------
         m_sa->read_sensors_calc_speed();       // first read all sensors, calculate mtor speed
-
+        float M_soll = 0 - (K2[0] * m_sa->get_phi_bd() +K2[1] * m_sa->get_gz());
+        float i_soll = M_soll / km;
         // -------------------------------------------------------------
-        //m_sa->enable_escon();
-        // m_sa->write_current(i_des);                   // write to motor 0 
+        if(ti.read()>6)
+            m_sa->enable_escon();
+        m_sa->write_current(i_soll);                   // write to motor 0 
         // handle enable
         }// endof the main loop
 }

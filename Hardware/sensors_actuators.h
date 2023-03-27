@@ -10,6 +10,7 @@ Tasks for students:
 #include "LinearCharacteristics.h"
 #include "Enc_unwrap_scale.h"
 #include "mpu6500_spi.h"
+#include "IIR_filter.h"
 
 
 class sensors_actuators
@@ -39,6 +40,7 @@ private:
     //-------------------------------------
     SPI spi;                    // mosi, miso, sclk
     LinearCharacteristics i2u;
+    IIR_filter fil_accx,fil_accy,fil_gyrz;
     LinearCharacteristics ax2ax,ay2ay,gz2gz;    // map imu raw values to m/s^2 and rad/s
     Enc_unwrap_scale uw;
     Timer t_but;                            // define button time        // 

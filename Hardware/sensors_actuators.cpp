@@ -16,6 +16,11 @@ sensors_actuators::sensors_actuators(float Ts) : counter(PA_8, PA_9),
     ax2ax = LinearCharacteristics(-16380,16480,-9.81,9.81);             // parametrize object based on sensor values from calibration
     ay2ay = LinearCharacteristics(-16950,15830,-9.81,9.81);
     gz2gz = LinearCharacteristics(-32767,32768,-1000*PI/180,1000*PI/180);
+    i2u = LinearCharacteristics(-15,15,0,1.0f);
+    float tau = 1.0;
+    fil_accx = IIR_filter(tau,Ts,1);
+    fil_accy = IIR_filter(tau,Ts,1);
+    fil_gyrz = IIR_filter(tau,Ts,tau);
 }
 // Deconstructor
 sensors_actuators::~sensors_actuators() {} 
@@ -23,12 +28,12 @@ sensors_actuators::~sensors_actuators() {}
 void sensors_actuators::read_sensors_calc_speed(void)
 {
     phi_fw = uw(counter);
-    est_angle();            // complementary filter
     Vphi_fw = 0;//
     //-------------- read imu ------------
     accx = ax2ax(imu.readAcc_raw(1));
     accy = ay2ay(-imu.readAcc_raw(0));
     gyrz = gz2gz(imu.readGyro_raw(2));
+    est_angle();            // complementary filter
 }
 
 /* est_angle: estimate angle from acc and gyro data. This function would also fit to the "sensors_actuators"- class
@@ -36,7 +41,9 @@ but here it is better visible for students.
 */
 void sensors_actuators::est_angle(void)
 {
-    ;
+    //phi_bd = atan2(fil_accy(accy),fil_accx(accx)) + fil_gyrz(gyrz) -PI/4;
+    phi_bd = atan2(fil_accx(accx),fil_accy(accy)) + fil_gyrz(gyrz) -PI/4;
+
 }
 
 

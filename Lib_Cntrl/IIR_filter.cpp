@@ -10,7 +10,6 @@ IIR_filter::IIR_filter(float tau,float Ts,float K)
     this->a0 = -tau/(tau+Ts);
     this->b0 = K * Ts/(tau+Ts);
     this->y_old = 0.0;  
-
 }
 
 // Methods:
