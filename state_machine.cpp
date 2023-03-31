@@ -37,6 +37,7 @@ void state_machine::loop(void){
                 if(m_sa->get_key_state() && ti.read()>.5)
                     {
                     printf("switch to BALANCE\r\n");
+                    m_loop->enable_bal_cntrl();
                     CS = BALANCE;
                     ti.reset();
                     }
@@ -45,6 +46,7 @@ void state_machine::loop(void){
                 if(m_sa->get_key_state() && ti.read()>.5)
                     {
                     printf("switch to INIT\r\n");
+                    m_loop->disable_all_cntrl();
                     CS = INIT;
                     ti.reset();
                     }

@@ -31,16 +31,19 @@ void ControllerLoop::loop(void){
         // THE LOOP ------------------------------------------------------------
         m_sa->read_sensors_calc_speed();       // first read all sensors, calculate mtor speed
 //        float M_soll = 0 - (K2[0] * m_sa->get_phi_bd() +K2[1] * m_sa->get_gz());
-        if(ti.read()>6)
-        {
-            m_sa->enable_escon();
+       if(bal_cntrl_enabled)
+            {
             integrator = I4(0 - m_sa->get_om_fw());
-        }
-        float M_soll =  -(K4[0] * m_sa->get_phi_bd() +K4[1] * m_sa->get_gz() 
-                         +K4[2] * m_sa->get_om_fw() + K4[3] * integrator);
-        float i_soll = M_soll / km;
-        // -------------------------------------------------------------
-        m_sa->write_current(i_soll);                   // write to motor 0 
+            float M_soll =  -(K4[0] * m_sa->get_phi_bd() +K4[1] * m_sa->get_gz() 
+                            +K4[2] * m_sa->get_om_fw() + K4[3] * integrator);
+            float i_soll = M_soll / km;
+            // -------------------------------------------------------------
+            m_sa->write_current(i_soll);                   // write to motor 0 
+            m_sa->enable_escon();
+            }
+        else {
+            m_sa->disable_escon();
+            }
         // handle enable
         }// endof the main loop
 }
@@ -62,6 +65,7 @@ void ControllerLoop::enable_vel_cntrl(void)
 void ControllerLoop::enable_bal_cntrl(void)
 {
     bal_cntrl_enabled = true;
+    vel_cntrl_enabled = false;
 }
 void ControllerLoop::reset_cntrl(void)
 {
