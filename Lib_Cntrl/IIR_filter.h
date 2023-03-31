@@ -13,6 +13,7 @@ class IIR_filter
 {
 public:
     IIR_filter(){};         // default constructor
+    IIR_filter(float);
     IIR_filter(float,float);
     IIR_filter(float,float,float);
     virtual ~IIR_filter();
@@ -23,7 +24,7 @@ public:
 private:
     float *B;
     float *A;
-    float a0,b0;
-    float Ts, y_old;
+    float a0,b0,b1;
+    float Ts, y_old,u_old;
     uint8_t nb,na;
 };

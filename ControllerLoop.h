@@ -26,8 +26,7 @@ private:
     Ticker ticker;
     ThreadFlag threadFlag;
     Timer ti;
-    PID_Cntrl flat_vel_cntrl;
-    PID_Cntrl bal_vel_cntrl;
+    PID_Cntrl I4;
     float Ts;
     bool bal_cntrl_enabled;
     bool vel_cntrl_enabled;

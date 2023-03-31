@@ -37,7 +37,8 @@ int main()
         {
         WAIT_MS(500);
         //printf("ax: %f ay: %f gz: %f\r\n",hardware.get_ax(),hardware.get_ay(),hardware.get_gz());
-        printf("phi_bd: %f\r\n",hardware.get_phi_bd());
+        //printf("phi_bd: %f\r\n",hardware.get_phi_bd());
+        printf("phi_fw: %f om_fw%f\r\n",hardware.get_phi_fw(),hardware.get_om_fw());
         }
 }   // END OF main
 

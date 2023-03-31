@@ -21,6 +21,7 @@ sensors_actuators::sensors_actuators(float Ts) : counter(PA_8, PA_9),
     fil_accx = IIR_filter(tau,Ts,1);
     fil_accy = IIR_filter(tau,Ts,1);
     fil_gyrz = IIR_filter(tau,Ts,tau);
+    diff = IIR_filter(Ts);
 }
 // Deconstructor
 sensors_actuators::~sensors_actuators() {} 
@@ -28,7 +29,7 @@ sensors_actuators::~sensors_actuators() {}
 void sensors_actuators::read_sensors_calc_speed(void)
 {
     phi_fw = uw(counter);
-    Vphi_fw = 0;//
+    om_fw = diff(phi_fw);//
     //-------------- read imu ------------
     accx = ax2ax(imu.readAcc_raw(1));
     accy = ay2ay(-imu.readAcc_raw(0));
@@ -69,9 +70,9 @@ float sensors_actuators::get_phi_fw(void)
 {
     return phi_fw;
 }
-float sensors_actuators::get_vphi_fw(void)
+float sensors_actuators::get_om_fw(void)
 {
-    return Vphi_fw;
+    return om_fw;
 }
 float sensors_actuators::get_ax(void)
 {

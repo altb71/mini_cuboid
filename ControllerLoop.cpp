@@ -10,6 +10,7 @@ ControllerLoop::ControllerLoop(sensors_actuators *sa, float Ts) : thread(osPrior
     m_sa->disable_escon();
     ti.reset();
     ti.start();
+    I4 = PID_Cntrl(0,1,0,0,Ts,-5.67,-5.67);  // umax = 1 Ampere * km/K4(4)
     }
 
 // decontructor for controller loop
@@ -20,17 +21,24 @@ ControllerLoop::~ControllerLoop() {}
 void ControllerLoop::loop(void){
 
     float K2[2]{-1.3924,-0.0864}; // based on modelling cuboid with EV -10+-10i
+    float K4[4]{-2.8682,-0.2764,-0.0076,0.0065};
     float km = 36.9e-3;
+    float integrator = 0;
     while(1)
         {
         ThisThread::flags_wait_any(threadFlag);
         // THE LOOP ------------------------------------------------------------
         m_sa->read_sensors_calc_speed();       // first read all sensors, calculate mtor speed
-        float M_soll = 0 - (K2[0] * m_sa->get_phi_bd() +K2[1] * m_sa->get_gz());
+//        float M_soll = 0 - (K2[0] * m_sa->get_phi_bd() +K2[1] * m_sa->get_gz());
+        if(ti.read()>6)
+        {
+            m_sa->enable_escon();
+            integrator = I4(0 - m_sa->get_om_fw());
+        }
+        float M_soll =  -(K4[0] * m_sa->get_phi_bd() +K4[1] * m_sa->get_gz() 
+                         +K4[2] * m_sa->get_om_fw() + K4[3] * integrator);
         float i_soll = M_soll / km;
         // -------------------------------------------------------------
-        if(ti.read()>6)
-            m_sa->enable_escon();
         m_sa->write_current(i_soll);                   // write to motor 0 
         // handle enable
         }// endof the main loop
