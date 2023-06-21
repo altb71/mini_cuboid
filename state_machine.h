@@ -3,7 +3,7 @@
 #include "ControllerLoop.h"
 
 #define INIT 1
-#define FLAT 2
+#define BREAK_DISC 2
 #define BALANCE 3
 
 

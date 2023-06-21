@@ -15,12 +15,17 @@ sensors_actuators::sensors_actuators(float Ts) : counter(PA_8, PA_9),
     imu.configuration();
     ax2ax = LinearCharacteristics(-16380,16480,-9.81,9.81);             // parametrize object based on sensor values from calibration
     ay2ay = LinearCharacteristics(-16950,15830,-9.81,9.81);
+    az2az = LinearCharacteristics(-16950,15830,-9.81,9.81);
+    gx2gx = LinearCharacteristics(-32767,32768,-1000*PI/180,1000*PI/180);
+    gy2gy = LinearCharacteristics(-32767,32768,-1000*PI/180,1000*PI/180);
     gz2gz = LinearCharacteristics(-32767,32768,-1000*PI/180,1000*PI/180);
     i2u = LinearCharacteristics(-15,15,0,1.0f);
     float tau = 1.0;
     fil_accx = IIR_filter(tau,Ts,1);
     fil_accy = IIR_filter(tau,Ts,1);
-    fil_gyrz = IIR_filter(tau,Ts,tau);
+    fil_accz = IIR_filter(tau,Ts,1);
+    fil_gyrx = IIR_filter(tau,Ts,tau);
+    fil_gyry = IIR_filter(tau,Ts,tau);
     diff = IIR_filter(Ts);
 }
 // Deconstructor
@@ -31,9 +36,12 @@ void sensors_actuators::read_sensors_calc_speed(void)
     phi_fw = uw(counter);
     om_fw = diff(phi_fw);//
     //-------------- read imu ------------
-    accx = ax2ax(imu.readAcc_raw(1));
-    accy = ay2ay(-imu.readAcc_raw(0));
-    gyrz = gz2gz(imu.readGyro_raw(2));
+    accz = ax2ax(imu.readAcc_raw(0));
+    accx = ay2ay(-imu.readAcc_raw(1));
+    accy = az2az(-imu.readAcc_raw(2));
+    gyrz = gx2gx(imu.readGyro_raw(0));
+    gyrx = gy2gy(-imu.readGyro_raw(1));
+    gyry = gz2gz(-imu.readGyro_raw(2));
     est_angle();            // complementary filter
 }
 
@@ -43,7 +51,12 @@ but here it is better visible for students.
 void sensors_actuators::est_angle(void)
 {
     //phi_bd = atan2(fil_accy(accy),fil_accx(accx)) + fil_gyrz(gyrz) -PI/4;
-    phi_bd = atan2(fil_accx(accx),fil_accy(accy)) + fil_gyrz(gyrz) -PI/4;
+    float fax, fay,faz;
+    fax = fil_accx(accx);
+    fay = fil_accy(accy);
+    faz = fil_accz(accz);
+    phi_bd = atan2(-fax,faz) + fil_gyry(gyry);
+    the_bd = atan2(fay,faz) + fil_gyrx(gyrx);
 
 }
 
@@ -66,6 +79,10 @@ float sensors_actuators::get_phi_bd(void)
 {
     return phi_bd;
 }
+float sensors_actuators::get_the_bd(void)
+{
+    return the_bd;
+}
 float sensors_actuators::get_phi_fw(void)
 {
     return phi_fw;
@@ -74,6 +91,7 @@ float sensors_actuators::get_om_fw(void)
 {
     return om_fw;
 }
+// ------------------------------------------------
 float sensors_actuators::get_ax(void)
 {
     return accx;
@@ -81,6 +99,19 @@ float sensors_actuators::get_ax(void)
 float sensors_actuators::get_ay(void)
 {
     return accy;
+}
+float sensors_actuators::get_az(void)
+{
+    return accz;
+}
+// ------------------------------------------------
+float sensors_actuators::get_gx(void)
+{
+    return gyrx;
+}
+float sensors_actuators::get_gy(void)
+{
+    return gyry;
 }
 float sensors_actuators::get_gz(void)
 {

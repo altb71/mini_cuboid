@@ -36,9 +36,9 @@ int main()
     while(1)
         {
         WAIT_MS(500);
-        //printf("ax: %f ay: %f gz: %f\r\n",hardware.get_ax(),hardware.get_ay(),hardware.get_gz());
+        printf("ax: %f %f %f gyr: %f %f %f pt: %f %f\r\n",hardware.get_ax(),hardware.get_ay(),hardware.get_az(),hardware.get_gx(),hardware.get_gy(),hardware.get_gz(),hardware.get_phi_bd(),hardware.get_the_bd());
         //printf("phi_bd: %f\r\n",hardware.get_phi_bd());
-        printf("phi_fw: %f om_fw%f\r\n",hardware.get_phi_fw(),hardware.get_om_fw());
+        //printf("phi_bd: %f om_fw%f\r\n",hardware.get_phi_fw(),hardware.get_om_fw());
         }
 }   // END OF main
 

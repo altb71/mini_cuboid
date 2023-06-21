@@ -23,6 +23,7 @@ void ControllerLoop::loop(void){
 
     float K2[2]{-1.3924,-0.0864}; // based on modelling cuboid with EV -10+-10i
     float K4[4]{-2.8682,-0.2764,-0.0076,0.0065};
+    float K6[6]{-3.4083, 9.1703,-0.2923,4.2784,0.0022,-0.001};
     float km = 36.9e-3;
     float integrator = 0;
     while(1)
@@ -34,8 +35,9 @@ void ControllerLoop::loop(void){
        if(bal_cntrl_enabled)
             {
             integrator = I4(0 - m_sa->get_om_fw());
-            float M_soll =  -(K4[0] * m_sa->get_phi_bd() +K4[1] * m_sa->get_gz() 
-                            +K4[2] * m_sa->get_om_fw() + K4[3] * integrator);
+            float M_soll =  -(K6[0] * m_sa->get_phi_bd() + K6[1] * m_sa->get_gy() 
+                             +K6[2] * m_sa->get_the_bd() + K6[3] * m_sa->get_gx()
+                             +K6[4] * m_sa->get_om_fw()  + K6[5] * integrator);
             float i_soll = M_soll / km;
             // -------------------------------------------------------------
             m_sa->write_current(i_soll);                   // write to motor 0 

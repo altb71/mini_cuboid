@@ -21,9 +21,13 @@ public:
     void read_sensors_calc_speed(void);       // read both encoders and calculate speeds
     float get_phi_fw(void);         // get angle of motor k
     float get_phi_bd(void);         // get angle of motor k
+    float get_the_bd(void);         // get angle of motor k
     float get_om_fw(void);          // get speed of motor k
     float get_ax(void);
     float get_ay(void);
+    float get_az(void);
+    float get_gx(void);
+    float get_gy(void);
     float get_gz(void);
     void write_current(float);  // write current to motors (0,...) for motor 1, (1,...) for motor 2
     void enable_escon();
@@ -40,15 +44,15 @@ private:
     //-------------------------------------
     SPI spi;                    // mosi, miso, sclk
     LinearCharacteristics i2u;
-    IIR_filter fil_accx,fil_accy,fil_gyrz;
+    IIR_filter fil_accx,fil_accy,fil_accz,fil_gyrx,fil_gyry;
     IIR_filter diff;        // DIfferentiator to get speed of fw
-    LinearCharacteristics ax2ax,ay2ay,gz2gz;    // map imu raw values to m/s^2 and rad/s
+    LinearCharacteristics ax2ax,ay2ay,az2az,gx2gx,gy2gy,gz2gz;    // map imu raw values to m/s^2 and rad/s
     Enc_unwrap_scale uw;
     Timer t_but;                            // define button time        // 
     // sensor states
-    float phi_fw,phi_bd;          // motor angle /rad
+    float phi_fw,phi_bd,the_bd;          // motor angle /rad
     float om_fw;                // motor speed / rad / s
-    float accx,accy,gyrz;       // accelerations and gyroscope
+    float accx,accy,accz,gyrx,gyry,gyrz;       // accelerations and gyroscope
     void est_angle(void);
     void but_pressed(void);
     void but_released(void);

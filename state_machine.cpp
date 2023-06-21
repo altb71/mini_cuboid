@@ -26,15 +26,15 @@ void state_machine::loop(void){
         switch(CS)
             {
             case INIT:
-                if(m_sa->get_key_state() && ti.read()>.5)
+                if(ti.read()>2)
                     {
-                    printf("switch to FLAT\r\n");
-                    CS = FLAT;
+                    printf("switch to BREAK_DISC\r\n");
+                    CS = BREAK_DISC;
                     ti.reset();
                     }
                 break;
-            case FLAT:
-                if(m_sa->get_key_state() && ti.read()>.5)
+            case BREAK_DISC:
+                if(fabs(m_sa->get_phi_bd()) < 0.0524 && fabs(m_sa->get_the_bd()) < 0.0524)
                     {
                     printf("switch to BALANCE\r\n");
                     m_loop->enable_bal_cntrl();
@@ -43,7 +43,7 @@ void state_machine::loop(void){
                     }
                 break;
             case BALANCE:
-                if(m_sa->get_key_state() && ti.read()>.5)
+                if((fabs(m_sa->get_phi_bd()) > 0.0873 || fabs(m_sa->get_the_bd()) > 0.0873) && ti.read()>2)
                     {
                     printf("switch to INIT\r\n");
                     m_loop->disable_all_cntrl();
