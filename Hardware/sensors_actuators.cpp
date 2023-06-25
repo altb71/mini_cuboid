@@ -26,7 +26,7 @@ sensors_actuators::sensors_actuators(float Ts) : counter(PA_8, PA_9),
     fil_accz = IIR_filter(tau,Ts,1);
     fil_gyrx = IIR_filter(tau,Ts,tau);
     fil_gyry = IIR_filter(tau,Ts,tau);
-    diff = IIR_filter(Ts);
+    diff = IIR_filter(3*Ts,Ts);
 }
 // Deconstructor
 sensors_actuators::~sensors_actuators() {} 
@@ -36,12 +36,12 @@ void sensors_actuators::read_sensors_calc_speed(void)
     phi_fw = uw(counter);
     om_fw = diff(phi_fw);//
     //-------------- read imu ------------
-    accz = ax2ax(imu.readAcc_raw(0));
+    accz = ax2ax(-imu.readAcc_raw(0));
     accx = ay2ay(-imu.readAcc_raw(1));
-    accy = az2az(-imu.readAcc_raw(2));
-    gyrz = gx2gx(imu.readGyro_raw(0));
+    accy = az2az(imu.readAcc_raw(2));
+    gyrz = gx2gx(-imu.readGyro_raw(0));
     gyrx = gy2gy(-imu.readGyro_raw(1));
-    gyry = gz2gz(-imu.readGyro_raw(2));
+    gyry = gz2gz(imu.readGyro_raw(2));
     est_angle();            // complementary filter
 }
 

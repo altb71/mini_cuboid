@@ -29,6 +29,7 @@ void state_machine::loop(void){
                 if(ti.read()>2)
                     {
                     printf("switch to BREAK_DISC\r\n");
+                    m_loop->enable_vel_cntrl();
                     CS = BREAK_DISC;
                     ti.reset();
                     }

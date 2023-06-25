@@ -8,9 +8,11 @@ ControllerLoop::ControllerLoop(sensors_actuators *sa, float Ts) : thread(osPrior
     this->Ts = Ts;
     this->m_sa = sa;
     m_sa->disable_escon();
+    km = 36.9e-3;
     ti.reset();
     ti.start();
     I4 = PID_Cntrl(0,1,0,0,Ts,-5.7,-5.7);  // umax = 1 Ampere * km/K4(4)
+    fw_cntrl = PID_Cntrl(0.0316,1.58,0,1,Ts,-3*km,3*km);
     }
 
 // decontructor for controller loop
@@ -23,8 +25,8 @@ void ControllerLoop::loop(void){
 
     float K2[2]{-1.3924,-0.0864}; // based on modelling cuboid with EV -10+-10i
     float K4[4]{-2.8682,-0.2764,-0.0076,0.0065};
-    float K6[6]{-3.4083, 9.1703,-0.2923,4.2784,0.0022,-0.001};
-    float km = 36.9e-3;
+    float K6[6]{7.3402, -13.2509, 0.6868, -3.2264, 0.0023, -0.0012 };
+
     float integrator = 0;
     while(1)
         {
@@ -42,6 +44,13 @@ void ControllerLoop::loop(void){
             // -------------------------------------------------------------
             m_sa->write_current(i_soll);                   // write to motor 0 
             m_sa->enable_escon();
+            }
+        else if(vel_cntrl_enabled)  // true if cube is flat 
+            {
+            float M_soll = fw_cntrl(0 - m_sa->get_om_fw());
+            m_sa->write_current(M_soll/km);   
+            m_sa->enable_escon();
+                // write to motor 0 
             }
         else {
             m_sa->disable_escon();
@@ -68,6 +77,7 @@ void ControllerLoop::enable_bal_cntrl(void)
 {
     bal_cntrl_enabled = true;
     vel_cntrl_enabled = false;
+    I4.reset(0);
 }
 void ControllerLoop::reset_cntrl(void)
 {

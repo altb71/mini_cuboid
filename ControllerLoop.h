@@ -26,8 +26,8 @@ private:
     Ticker ticker;
     ThreadFlag threadFlag;
     Timer ti;
-    PID_Cntrl I4;
-    float Ts;
+    PID_Cntrl I4, fw_cntrl;
+    float Ts,km;
     bool bal_cntrl_enabled;
     bool vel_cntrl_enabled;
     void sendSignal();
