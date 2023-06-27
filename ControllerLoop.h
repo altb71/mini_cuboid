@@ -32,4 +32,5 @@ private:
     bool vel_cntrl_enabled;
     void sendSignal();
     sensors_actuators *m_sa;
+    float saturate(float,float,float);
 };

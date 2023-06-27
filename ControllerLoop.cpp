@@ -25,7 +25,9 @@ void ControllerLoop::loop(void){
 
     float K2[2]{-1.3924,-0.0864}; // based on modelling cuboid with EV -10+-10i
     float K4[4]{-2.8682,-0.2764,-0.0076,0.0065};
-    float K6[6]{6.7531, -11.5141, 0.6137, -2.9323, 0.0022, -0.0011 };
+    //float K6[6]{6.7531, -11.5141, 0.6137, -2.9323, 0.0022, -0.0011 };
+    //float K6[6]{3.0820, -3.1389, 0.2528, -0.7934, 0.0004, -0.0002 };
+    float K6[6]{5.1724, -6.0817, 0.4734, -1.5516, 0.0004, -0.0001};
     float integrator = 0;
     while(1)
         {
@@ -39,7 +41,7 @@ void ControllerLoop::loop(void){
             float M_soll =  -(K6[0] * m_sa->get_phi_bd() + K6[1] * m_sa->get_the_bd() 
                              +K6[2] * m_sa->get_gx()     + K6[3] * m_sa->get_gy() 
                              +K6[4] * m_sa->get_om_fw()  + K6[5] * integrator);
-            float i_soll = M_soll / km;
+            float i_soll = saturate(M_soll / km,-7,7);
             // -------------------------------------------------------------
             m_sa->write_current(i_soll);                   // write to motor 0 
             m_sa->enable_escon();
@@ -87,4 +89,8 @@ void ControllerLoop::disable_all_cntrl()
 {
     bal_cntrl_enabled = false;
     vel_cntrl_enabled = false;
+}
+float ControllerLoop::saturate(float v,float mi,float ma)
+{
+    return (v<mi) ? mi :((v>ma) ? ma : v);
 }

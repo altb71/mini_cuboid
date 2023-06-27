@@ -35,7 +35,7 @@ void state_machine::loop(void){
                     }
                 break;
             case BREAK_DISC:
-                if(fabs(m_sa->get_phi_bd()) < 0.0524 && fabs(m_sa->get_the_bd()) < 0.0524)
+                if(ti.read()>2 && fabs(m_sa->get_phi_bd()) < 0.0349 && fabs(m_sa->get_the_bd()) < 0.0349)
                     {
                     printf("switch to BALANCE\r\n");
                     m_loop->enable_bal_cntrl();

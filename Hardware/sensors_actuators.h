@@ -29,6 +29,7 @@ public:
     float get_gx(void);
     float get_gy(void);
     float get_gz(void);
+    float get_curr_setvalue(void);
     void write_current(float);  // write current to motors (0,...) for motor 1, (1,...) for motor 2
     void enable_escon();
     void disable_escon();
@@ -57,5 +58,6 @@ private:
     void but_pressed(void);
     void but_released(void);
     bool key_was_pressed;
+    float curr_setvalue;
 
 };

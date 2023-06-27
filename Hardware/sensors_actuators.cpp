@@ -13,14 +13,14 @@ sensors_actuators::sensors_actuators(float Ts) : counter(PA_8, PA_9),
     counter.reset();   // encoder reset
     imu.init_inav();
     imu.configuration();
-    ax2ax = LinearCharacteristics(-16380,16480,-9.81,9.81);             // parametrize object based on sensor values from calibration
-    ay2ay = LinearCharacteristics(-16950,15830,-9.81,9.81);
-    az2az = LinearCharacteristics(-16950,15830,-9.81,9.81);
+    ax2ax = LinearCharacteristics(-16700,16100,-9.81,9.81);             // parametrize object based on sensor values from calibration
+    ay2ay = LinearCharacteristics(-17580,15720,-9.81,9.81);
+    az2az = LinearCharacteristics(-16780,16000,-9.81,9.81);
     gx2gx = LinearCharacteristics(-32767,32768,-1000*PI/180,1000*PI/180);
     gy2gy = LinearCharacteristics(-32767,32768,-1000*PI/180,1000*PI/180);
     gz2gz = LinearCharacteristics(-32767,32768,-1000*PI/180,1000*PI/180);
     i2u = LinearCharacteristics(-15,15,0,1.0f);
-    float tau = 1.0;
+    float tau = 1.5;
     fil_accx = IIR_filter(tau,Ts,1);
     fil_accy = IIR_filter(tau,Ts,1);
     fil_accz = IIR_filter(tau,Ts,1);
@@ -36,12 +36,12 @@ void sensors_actuators::read_sensors_calc_speed(void)
     phi_fw = uw(counter);
     om_fw = diff(phi_fw);//
     //-------------- read imu ------------
-    accz = ax2ax(-imu.readAcc_raw(0));
-    accx = ay2ay(-imu.readAcc_raw(1));
-    accy = az2az(imu.readAcc_raw(2));
-    gyrz = gx2gx(-imu.readGyro_raw(0));
-    gyrx = gy2gy(-imu.readGyro_raw(1));
-    gyry = gz2gz(imu.readGyro_raw(2));
+    accx = ax2ax(-imu.readAcc_raw(1));
+    accy = ay2ay(imu.readAcc_raw(2));
+    accz = az2az(-imu.readAcc_raw(0));
+    gyrx = gx2gx(-imu.readGyro_raw(1)) +.005;
+    gyry = gy2gy(imu.readGyro_raw(2)) -.026;
+    gyrz = gz2gz(-imu.readGyro_raw(0));
     est_angle();            // complementary filter
 }
 
@@ -55,8 +55,8 @@ void sensors_actuators::est_angle(void)
     fax = fil_accx(accx);
     fay = fil_accy(accy);
     faz = fil_accz(accz);
-    phi_bd = atan2(-fax,faz) + fil_gyry(gyry);
-    the_bd = atan2(fay,faz) + fil_gyrx(gyrx);
+    phi_bd = atan2(fay,faz) + fil_gyrx(gyrx);
+    the_bd = atan2(-fax,faz) + fil_gyry(gyry) - .03;
 
 }
 
@@ -72,7 +72,8 @@ void sensors_actuators::disable_escon(void)
 
 void sensors_actuators::write_current(float _i_des)
 {
-        i_des = i2u(_i_des);   
+        i_des = i2u(_i_des);
+        curr_setvalue = _i_des; 
 }
 
 float sensors_actuators::get_phi_bd(void)
@@ -116,6 +117,10 @@ float sensors_actuators::get_gy(void)
 float sensors_actuators::get_gz(void)
 {
     return gyrz;
+}
+float sensors_actuators::get_curr_setvalue(void)
+{
+    return curr_setvalue;
 }
 // start timer as soon as Button is pressed
 void sensors_actuators::but_pressed()
