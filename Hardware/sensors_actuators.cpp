@@ -55,8 +55,8 @@ void sensors_actuators::est_angle(void)
     fax = fil_accx(accx);
     fay = fil_accy(accy);
     faz = fil_accz(accz);
-    phi_bd = atan2(fay,faz) + fil_gyrx(gyrx);
-    the_bd = atan2(-fax,faz) + fil_gyry(gyry) - .03;
+    phi_bd = atan2(fay,faz) + fil_gyrx(gyrx) -.015; 
+    the_bd = atan2(-fax,faz) + fil_gyry(gyry) - .015;
 
 }
 
