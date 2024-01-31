@@ -53,11 +53,12 @@ private:
     // sensor states
     float phi_fw,phi_bd,the_bd;          // motor angle /rad
     float om_fw;                // motor speed / rad / s
-    float accx,accy,accz,gyrx,gyry,gyrz;       // accelerations and gyroscope
+    float accx,accy,accz,gyrx,gyry,gyrz,accx_sens,accy_sens,gyrx_sens,gyry_sens;       // accelerations and gyroscope
     void est_angle(void);
     void but_pressed(void);
     void but_released(void);
     bool key_was_pressed;
     float curr_setvalue;
+    float sq2 = 0.70710678;
 
 };

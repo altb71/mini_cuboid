@@ -35,7 +35,7 @@ int main()
     sm.start_loop();
     while(1)
         {
-        WAIT_MS(50);
+        WAIT_MS(500);
         //printf("ax: %1.4f %1.4f %1.4f gyr: %1.4f %1.4f pt: %1.4f %1.4f fw: %1.2f M: %1.2f\r\n",hardware.get_ax(),hardware.get_ay(),hardware.get_az(),hardware.get_gx(),hardware.get_gy(),hardware.get_phi_bd(),hardware.get_the_bd(),hardware.get_om_fw(),hardware.get_curr_setvalue());
         printf("%1.4f %1.4f %1.4f %1.4f %1.4f %1.4f %1.4f %1.2f %1.3f\r\n",hardware.get_ax(),hardware.get_ay(),hardware.get_az(),hardware.get_gx(),hardware.get_gy(),hardware.get_phi_bd(),hardware.get_the_bd(),hardware.get_om_fw(),hardware.get_curr_setvalue());
         //printf("phi_bd: %f\r\n",hardware.get_phi_bd());

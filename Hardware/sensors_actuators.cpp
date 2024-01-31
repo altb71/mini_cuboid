@@ -13,9 +13,12 @@ sensors_actuators::sensors_actuators(float Ts) : counter(PA_8, PA_9),
     counter.reset();   // encoder reset
     imu.init_inav();
     imu.configuration();
-    ax2ax = LinearCharacteristics(-16700,16100,-9.81,9.81);             // parametrize object based on sensor values from calibration
-    ay2ay = LinearCharacteristics(-17580,15720,-9.81,9.81);
-    az2az = LinearCharacteristics(-16780,16000,-9.81,9.81);
+    ax2ax = LinearCharacteristics(-80  ,16650,0,9.81);             // parametrize object based on sensor values from calibration
+    ay2ay = LinearCharacteristics(-1300,15000,0,9.81);
+    az2az = LinearCharacteristics(-200 ,15600,0,9.81);
+    //ax2ax = LinearCharacteristics(1,0);             // parametrize object based on sensor values from calibration
+    //ay2ay = LinearCharacteristics(1,0);
+    //az2az = LinearCharacteristics(1,0);
     gx2gx = LinearCharacteristics(-32767,32768,-1000*PI/180,1000*PI/180);
     gy2gy = LinearCharacteristics(-32767,32768,-1000*PI/180,1000*PI/180);
     gz2gz = LinearCharacteristics(-32767,32768,-1000*PI/180,1000*PI/180);
@@ -36,12 +39,17 @@ void sensors_actuators::read_sensors_calc_speed(void)
     phi_fw = uw(counter);
     om_fw = diff(phi_fw);//
     //-------------- read imu ------------
-    accx = ax2ax(-imu.readAcc_raw(1));
-    accy = ay2ay(imu.readAcc_raw(2));
+    accx_sens = ax2ax(imu.readAcc_raw(1));
+    accy_sens = ay2ay(-imu.readAcc_raw(2));
     accz = az2az(-imu.readAcc_raw(0));
-    gyrx = gx2gx(-imu.readGyro_raw(1)) +.005;
-    gyry = gy2gy(imu.readGyro_raw(2)) -.026;
+    gyrx_sens = gx2gx(imu.readGyro_raw(1));
+    gyry_sens = gy2gy(-imu.readGyro_raw(2));
     gyrz = gz2gz(-imu.readGyro_raw(0));
+    // calculate sensor  data in bd coordinates
+    accx =  sq2 * accx_sens + sq2 * accy_sens;
+    accy = -sq2 * accx_sens + sq2 * accy_sens;
+    gyrx =  sq2 * gyrx_sens + sq2 * gyry_sens;
+    gyry = -sq2 * gyrx_sens + sq2 * gyry_sens;
     est_angle();            // complementary filter
 }
 
@@ -55,9 +63,9 @@ void sensors_actuators::est_angle(void)
     fax = fil_accx(accx);
     fay = fil_accy(accy);
     faz = fil_accz(accz);
-    phi_bd = atan2(fay,faz) + fil_gyrx(gyrx) -.015; 
-    the_bd = atan2(-fax,faz) + fil_gyry(gyry) - .015;
-
+    phi_bd = atan2(fay,faz) + fil_gyrx(gyrx) -0; 
+    the_bd = atan2(-fax,faz) + fil_gyry(gyry) - 0;
+    
 }
 
 
