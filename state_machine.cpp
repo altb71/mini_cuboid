@@ -25,6 +25,8 @@ void state_machine::loop(void){
         // this statemachine is for later use, here, just test sensors
         switch(CS)
             {
+            case IDLE:
+                break;
             case INIT:
                 if(ti.read()>2)
                     {
@@ -51,6 +53,17 @@ void state_machine::loop(void){
                     CS = INIT;
                     ti.reset();
                     }
+                break;
+            case MISC:
+                if(ti.read()>1)
+                    {
+                    m_sa->write_current(0);
+                    m_sa->disable_escon();
+                    CS = IDLE;
+                    printf("switch to IDLE\r\n");
+                    }
+                else
+                    m_sa->write_current(2*0);
                 break;
             default:
                 break;

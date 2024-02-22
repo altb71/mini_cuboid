@@ -45,11 +45,12 @@ void sensors_actuators::read_sensors_calc_speed(void)
     gyrx_sens = gx2gx(imu.readGyro_raw(1));
     gyry_sens = gy2gy(-imu.readGyro_raw(2));
     gyrz = gz2gz(-imu.readGyro_raw(0));
+
     // calculate sensor  data in bd coordinates
-    accx =  sq2 * accx_sens + sq2 * accy_sens;
-    accy = -sq2 * accx_sens + sq2 * accy_sens;
-    gyrx =  sq2 * gyrx_sens + sq2 * gyry_sens;
-    gyry = -sq2 * gyrx_sens + sq2 * gyry_sens;
+    accx =  sq2 * accx_sens - sq2 * accy_sens;
+    accy =  sq2 * accx_sens + sq2 * accy_sens;
+    gyrx =  sq2 * gyrx_sens - sq2 * gyry_sens;
+    gyry =  sq2 * gyrx_sens + sq2 * gyry_sens;
     est_angle();            // complementary filter
 }
 
@@ -63,8 +64,15 @@ void sensors_actuators::est_angle(void)
     fax = fil_accx(accx);
     fay = fil_accy(accy);
     faz = fil_accz(accz);
-    phi_bd = atan2(fay,faz) + fil_gyrx(gyrx) -0; 
-    the_bd = atan2(-fax,faz) + fil_gyry(gyry) - 0;
+    if(accz>0)
+        {
+        phi_bd = atan2(fay,faz) + fil_gyrx(gyrx) -0.07; 
+        the_bd = atan2(-fax,faz) + fil_gyry(gyry) - 0.02;
+        }
+    else {
+        phi_bd = -atan2(fay,-faz) + fil_gyrx(gyrx)+.02; 
+        the_bd = -atan2(-fax,-faz) + fil_gyry(gyry)-.0;        
+        }
     
 }
 
@@ -80,13 +88,13 @@ void sensors_actuators::disable_escon(void)
 
 void sensors_actuators::write_current(float _i_des)
 {
-        i_des = i2u(_i_des);
         curr_setvalue = _i_des; 
+        i_des = i2u(_i_des);
 }
 
 float sensors_actuators::get_phi_bd(void)
 {
-    return phi_bd;
+        return phi_bd;
 }
 float sensors_actuators::get_the_bd(void)
 {

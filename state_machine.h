@@ -2,9 +2,11 @@
 #include "sensors_actuators.h"
 #include "ControllerLoop.h"
 
+#define IDLE 0
 #define INIT 1
 #define BREAK_DISC 2
 #define BALANCE 3
+#define MISC 4
 
 
 // This is the loop class, it is not a controller at first hand, it guarantees a cyclic call

@@ -12,7 +12,7 @@ ControllerLoop::ControllerLoop(sensors_actuators *sa, float Ts) : thread(osPrior
     ti.reset();
     ti.start();
 
-    I4 = PID_Cntrl(0,1,0,0,Ts,-fabs(km/K6[5]),fabs(km/K6[5]));  // umax = 1 Ampere * km/K6(6)
+    I4 = PID_Cntrl(0,1,0,0,Ts,-3*fabs(km/K6[5]),3*fabs(km/K6[5]));  // umax = 1 Ampere * km/K6(6)
     fw_cntrl = PID_Cntrl(0.0316,1.58,0,1,Ts,-3*km,3*km);
     }
 

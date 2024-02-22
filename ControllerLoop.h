@@ -33,5 +33,5 @@ private:
     void sendSignal();
     sensors_actuators *m_sa;
     float saturate(float,float,float);
-    float K6[6]{7.1945, -9.7805, 0.6397, -2.2243, 0.0015, -0.0010, };
+    float K6[6]{-7.1051, -9.7315, -0.6375, -2.2270, 0.0015, -0.0010 };
 };

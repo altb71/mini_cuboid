@@ -1,0 +1,138 @@
+//BrainGrid Overview
+//Written in the Dot language (See Graphviz)
+
+digraph {
+	 graph[splines=ortho,compound=true]
+
+
+
+
+	subgraph clusterval {
+		style = rounded
+		bgcolor = grey90
+		color = coral
+		node [shape = record, color = coral];
+
+		val[label = val, style = filled];
+		val_attestation[label = val_attestation, style = filled];
+		val_client_defs[label = val_client_defs, style = filled];
+		val_framework[label = val_framework, style = filled];
+		val_greentea[label = val_greentea, style = filled];
+		val_interfaces[label = val_interfaces, style = filled];
+		val_internal_trusted_storage[label = val_internal_trusted_storage, style = filled];
+		val_protected_storage[label = val_protected_storage, style = filled];
+		val_target[label = val_target, style = filled];
+		val[label =< <B> val</B>>, style = bold, fillcolor = white, style = filled];
+
+
+		//------LAYOUT FOR SUBGRAPH------
+
+
+		rankdir = BT; // Rank Direction Bottom to Top
+		nodesep = 0.44; // Node Separation
+		ranksep = 0.44; // Rank Separation
+
+
+		//INHERITANCE//
+
+
+
+		//COMPOSITION//
+
+
+		val -> val_attestation [arrowhead=ediamond];
+		val_client_defs -> val_attestation [arrowhead=ediamond];
+		val_framework -> val_attestation [arrowhead=ediamond];
+		val_target -> val_attestation [arrowhead=ediamond];
+
+		val -> val_client_defs [arrowhead=ediamond];
+
+		val -> val_greentea [arrowhead=ediamond];
+		val_interfaces -> val_greentea [arrowhead=ediamond];
+
+		val -> val_interfaces [arrowhead=ediamond];
+		val_attestation -> val_interfaces [arrowhead=ediamond];
+		val_client_defs -> val_interfaces [arrowhead=ediamond];
+		val_greentea -> val_interfaces [arrowhead=ediamond];
+		val_internal_trusted_storage -> val_interfaces [arrowhead=ediamond];
+		val_protected_storage -> val_interfaces [arrowhead=ediamond];
+
+		val -> val_internal_trusted_storage [arrowhead=ediamond];
+		val_client_defs -> val_internal_trusted_storage [arrowhead=ediamond];
+		val_framework -> val_internal_trusted_storage [arrowhead=ediamond];
+		val_target -> val_internal_trusted_storage [arrowhead=ediamond];
+
+		val -> val_protected_storage [arrowhead=ediamond];
+		val_client_defs -> val_protected_storage [arrowhead=ediamond];
+		val_framework -> val_protected_storage [arrowhead=ediamond];
+		val_target -> val_protected_storage [arrowhead=ediamond];
+
+		val -> val_target [arrowhead=ediamond];
+	}//end subgraph val
+
+
+	subgraph clusterpal {
+		style = rounded
+		bgcolor = grey90
+		color = cyan
+		node [shape = record, color = cyan];
+
+		pal_common[label = pal_common, style = filled];
+		pal_interfaces_ns[label = pal_interfaces_ns, style = filled];
+		pal_mbed_os_intf[label = pal_mbed_os_intf, style = filled];
+		pal[label =< <B> pal</B>>, style = bold, fillcolor = white, style = filled];
+
+
+		//------LAYOUT FOR SUBGRAPH------
+
+
+		rankdir = BT; // Rank Direction Bottom to Top
+		nodesep = 0.44; // Node Separation
+		ranksep = 0.44; // Rank Separation
+
+
+		//INHERITANCE//
+
+
+
+		//COMPOSITION//
+
+
+		pal_common -> pal_mbed_os_intf [arrowhead=ediamond];
+	}//end subgraph pal
+//-------LAYOUT OF RELATIONSHIPS BETWEEN SUBGRAPHS------//
+rankdir = BT; // Rank Direction Top to Bottom
+nodesep = 0.44; // Node Separation
+ranksep = 0.44; // Rank Separation
+
+
+edge [color=black];
+mbed -> main [arrowhead=ediamond];
+val_interfaces -> main [arrowhead=ediamond];
+pal_mbed_os_intf -> main [arrowhead=ediamond];
+
+edge [color=cyan];
+rtos -> pal_mbed_os_intf [arrowhead=ediamond];
+mbed_assert -> pal_mbed_os_intf [arrowhead=ediamond];
+val_interfaces -> pal_mbed_os_intf [arrowhead=ediamond];
+entropy_poll -> pal_mbed_os_intf [arrowhead=ediamond];
+psa_attest_inject_key -> pal_mbed_os_intf [arrowhead=ediamond];
+psa_initial_attestation_api -> pal_mbed_os_intf [arrowhead=ediamond];
+lifecycle -> pal_mbed_os_intf [arrowhead=ediamond];
+
+edge [color=coral];
+pal_interfaces_ns -> val_interfaces [arrowhead=ediamond];
+psa_initial_attestation_api -> val_attestation [arrowhead=ediamond];
+pal_interfaces_ns -> val_attestation [arrowhead=ediamond];
+pal_common -> val [arrowhead=ediamond];
+
+edge [color=cyan];
+internal_trusted_storage -> pal_common [arrowhead=ediamond];
+val -> pal_interfaces_ns [arrowhead=ediamond];
+val_client_defs -> pal_interfaces_ns [arrowhead=ediamond];
+
+edge [color=coral];
+pal_interfaces_ns -> val_protected_storage [arrowhead=ediamond];
+pal_interfaces_ns -> val_internal_trusted_storage [arrowhead=ediamond];
+inttypes -> val_greentea [arrowhead=ediamond];
+}//End digraph declaration
