@@ -1,8 +1,8 @@
 #include "mbed.h"
 #include <stdint.h>
 #include "math.h" 
-#include "ControllerLoop.h"
-#include "sensors_actuators.h"
+#include "realtime_thread.h"
+#include "IO_handler.h"
 #include "state_machine.h"
 
 #define WAIT_MS(x) ThisThread::sleep_for(chrono::milliseconds(x));
@@ -23,13 +23,13 @@ int main()
 
     // --------- mini cuboid,
     float Ts = 0.002f;                      // sampling time, typically approx 1/500
-    sensors_actuators hardware(Ts);         // in this class all the physical ios are handled
-    ControllerLoop loop(&hardware,Ts);       // this is for the main controller loop
-    state_machine sm(&hardware,&loop,0.02);
+    IO_handler hardware(Ts);         // in this class all the physical ios are handled
+    realtime_thread rt_thread(&hardware,Ts);       // this is for the main controller loop
+    state_machine sm(&hardware,&rt_thread,0.02);
     WAIT_MS(200);
     printf("- - - - MiniCuboid Start! - - - \r\n");
 // ----------------------------------
-    loop.start_loop();
+    rt_thread.start_loop();
     WAIT_MS(20);
     sm.start_loop();
     while(1)

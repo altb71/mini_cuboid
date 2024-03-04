@@ -2,7 +2,7 @@
 using namespace std;
 
 // contructor for controller loop
-state_machine::state_machine(sensors_actuators *sa, ControllerLoop *loop, float Ts) : thread(osPriorityNormal,4096)
+state_machine::state_machine(IO_handler *sa, realtime_thread *loop, float Ts) : thread(osPriorityNormal,4096)
 {
     this->Ts = Ts;
     this->CS = INIT;

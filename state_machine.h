@@ -1,6 +1,6 @@
 #include "mbed.h"
-#include "sensors_actuators.h"
-#include "ControllerLoop.h"
+#include "IO_handler.h"
+#include "realtime_thread.h"
 
 #define INIT 1
 #define FLAT 2
@@ -11,7 +11,7 @@
 class state_machine
 {
 public:
-    state_machine(sensors_actuators *,ControllerLoop *,float Ts);
+    state_machine(IO_handler *,realtime_thread *,float Ts);
     virtual     ~state_machine();
     void start_loop(void);
 
@@ -24,6 +24,6 @@ private:
     Timer ti;
     float Ts;
     void sendSignal();
-    sensors_actuators *m_sa;
-    ControllerLoop *m_loop;
+    IO_handler *m_sa;
+    realtime_thread *m_loop;
 };

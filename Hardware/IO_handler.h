@@ -1,5 +1,5 @@
 #pragma once
-/* class sensors_actuators
+/* class IO_handler
 Tasks for students:
     - scale ios correctly
     - define derivative filter correctly
@@ -12,11 +12,11 @@ Tasks for students:
 #include "mpu6500_spi.h"
 
 
-class sensors_actuators
+class IO_handler
 {
 public:
-    sensors_actuators(float Ts);        // default constructor
-    virtual ~sensors_actuators();   // deconstructor
+    IO_handler(float Ts);        // default constructor
+    virtual ~IO_handler();   // deconstructor
     void read_sensors_calc_speed(void);       // read both encoders and calculate speeds
     float get_phi_fw(void);         // get angle of motor k
     float get_phi_bd(void);         // get angle of motor k
