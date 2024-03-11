@@ -23,9 +23,18 @@ void realtime_thread::loop(void){
         ThisThread::flags_wait_any(threadFlag);
         // THE LOOP ------------------------------------------------------------
         m_io->read_sensors_calc_speed();       // first read all sensors, calculate motor speed and angle of body
+        if(bal_cntrl_enabled)
+            {
+                /* Aufgabe 5.1 */
+            }
+        else if(vel_cntrl_enabled)
+            {
 
-
-
+            }
+        else 
+            {
+            m_io->write_current(0);
+            }   
         }// endof the main loop
 }
 

@@ -19,6 +19,7 @@ IO_handler::IO_handler(float Ts) : counter(PA_8, PA_9),
     ay2ay = LinearCharacteristics(1,0);
     gz2gz = LinearCharacteristics(-32767,32768,-1000*PI/180,1000*PI/180);
     i2u = LinearCharacteristics(1,0);
+    /*  Aufgabe 3.1 Parametrieren  der Filter */ 
 }
 // Deconstructor
 IO_handler::~IO_handler() {} 

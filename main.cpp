@@ -36,6 +36,7 @@ int main()
         {
         WAIT_MS(500);
         printf("ax: %f ay: %f gz: %f\r\n",hardware.get_ax(),hardware.get_ay(),hardware.get_gz());
+        // Aufgabe 2.4
         }
 }   // END OF main
 

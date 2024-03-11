@@ -17,16 +17,17 @@ state_machine::~state_machine() {}
 
 // ----------------------------------------------------------------------------
 void state_machine::loop(void){
-    
+    float local_time;
     while(1)
         {
         ThisThread::flags_wait_any(threadFlag);
         // THE LOOP ------------------------------------------------------------
         // this statemachine is for later use, here, just test sensors
+        local_time = ti.read();
         switch(CS)
             {
             case INIT:
-                if(m_sa->get_key_state() && ti.read()>.5)
+                if(m_sa->get_key_state() && local_time>.5)
                     {
                     printf("switch to FLAT\r\n");
                     CS = FLAT;
@@ -34,7 +35,7 @@ void state_machine::loop(void){
                     }
                 break;
             case FLAT:
-                if(m_sa->get_key_state() && ti.read()>.5)
+                if(m_sa->get_key_state() && local_time>.5)
                     {
                     printf("switch to BALANCE\r\n");
                     CS = BALANCE;
@@ -42,7 +43,7 @@ void state_machine::loop(void){
                     }
                 break;
             case BALANCE:
-                if(m_sa->get_key_state() && ti.read()>.5)
+                if(m_sa->get_key_state() && local_time>.5)
                     {
                     printf("switch to INIT\r\n");
                     CS = INIT;

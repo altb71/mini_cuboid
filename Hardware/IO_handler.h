@@ -49,5 +49,6 @@ private:
     void but_pressed(void);
     void but_released(void);
     bool key_was_pressed;
+    /*  Aufgabe 3.1   */ 
 
 };
