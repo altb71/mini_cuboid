@@ -15,10 +15,10 @@ IO_handler::IO_handler(float Ts) : counter(PA_8, PA_9),
     imu.configuration();
     /* *** AUFGABEN *** :
     1.1, 1.2, 1.3    */
-    ax2ax = LinearCharacteristics(1,0);
-    ay2ay = LinearCharacteristics(1,0);
+    ax2ax = LinearCharacteristics(-16270,16580,-9.81,9.81);
+    ay2ay = LinearCharacteristics(-17200,15650,-9.81,9.81);
     gz2gz = LinearCharacteristics(-32767,32768,-1000*PI/180,1000*PI/180);
-    i2u = LinearCharacteristics(1,0);
+    i2u = LinearCharacteristics(-15,15,0,1);
     /*  Aufgabe 3.1 Parametrieren  der Filter */ 
 }
 // Deconstructor
@@ -29,9 +29,9 @@ void IO_handler::read_sensors_calc_speed(void)
     phi_fw = uw(counter);
     Vphi_fw = 0; //
     //-------------- read imu ------------
-    accx = imu.readAcc_raw(1);
-    accy = -imu.readAcc_raw(0);
-    gyrz = imu.readGyro_raw(2);
+    accx = ax2ax(imu.readAcc_raw(1));
+    accy = ay2ay(-imu.readAcc_raw(0));
+    gyrz = gz2gz(imu.readGyro_raw(2));
 }
 
 void IO_handler::enable_escon(void)

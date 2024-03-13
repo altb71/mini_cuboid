@@ -18,6 +18,8 @@ Altenburger February 2023
 //---------- main loop -------------
 //******************************************************************************
 
+#include "IIR_filter.h"
+
 int main()
 {
 
@@ -32,11 +34,17 @@ int main()
     rt_thread.start_loop();
     WAIT_MS(20);
     sm.start_loop();
+    IIR_filter TP(.1,Ts,1);
+    float ti = 0;
     while(1)
         {
-        WAIT_MS(500);
-        printf("ax: %f ay: %f gz: %f\r\n",hardware.get_ax(),hardware.get_ay(),hardware.get_gz());
+        WAIT_MS(5);
+        //printf("ax: %f ay: %f gz: %f\r\n",hardware.get_ax(),hardware.get_ay(),hardware.get_gz());
         // Aufgabe 2.4
+        /*if(ti<.25)
+            printf("%f %f\r\n",ti,TP(1));
+        ti += Ts;*/
+        
         }
 }   // END OF main
 

@@ -22,6 +22,6 @@ public:
 private:
     float *B;
     float *A;
-    float a0,b0;
+    float a0,b0,yk;
     uint8_t nb,na;
 };
