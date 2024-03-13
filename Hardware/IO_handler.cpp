@@ -19,7 +19,12 @@ IO_handler::IO_handler(float Ts) : counter(PA_8, PA_9),
     ay2ay = LinearCharacteristics(-17200,15650,-9.81,9.81);
     gz2gz = LinearCharacteristics(-32767,32768,-1000*PI/180,1000*PI/180);
     i2u = LinearCharacteristics(-15,15,0,1);
-    /*  Aufgabe 3.1 Parametrieren  der Filter */ 
+    /*  Aufgabe 3.1 Parametrieren  der Filter */
+    float tau = 1;
+    fil_ax = IIR_filter(tau,Ts,1);
+    fil_ay = IIR_filter(tau,Ts,1);
+    fil_gz = IIR_filter(tau,Ts,tau);
+
 }
 // Deconstructor
 IO_handler::~IO_handler() {} 
@@ -32,6 +37,8 @@ void IO_handler::read_sensors_calc_speed(void)
     accx = ax2ax(imu.readAcc_raw(1));
     accy = ay2ay(-imu.readAcc_raw(0));
     gyrz = gz2gz(imu.readGyro_raw(2));
+    // Komplementaerfilter
+    phi_bd = atan2(fil_ax(accx),fil_ay(accy))+fil_gz(gyrz) - PI/4;
 }
 
 void IO_handler::enable_escon(void)

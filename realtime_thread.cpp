@@ -18,6 +18,8 @@ realtime_thread::~realtime_thread() {}
 // ----------------------------------------------------------------------------
 // this is the main loop called every Ts with high priority
 void realtime_thread::loop(void){
+
+    float K[2] {-0.9603,-0.0611};
     while(1)
         {
         ThisThread::flags_wait_any(threadFlag);

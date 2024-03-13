@@ -12,6 +12,7 @@ operator: (float)   // calls "eval"
 class IIR_filter
 {
 public:
+    IIR_filter(){};
     IIR_filter(float,float);
     IIR_filter(float,float,float);
     virtual ~IIR_filter();

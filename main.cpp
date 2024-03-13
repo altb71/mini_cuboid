@@ -34,17 +34,18 @@ int main()
     rt_thread.start_loop();
     WAIT_MS(20);
     sm.start_loop();
-    IIR_filter TP(.1,Ts,1);
-    float ti = 0;
+    //IIR_filter TP(.1,Ts,1);
+    //float ti = 0;
     while(1)
         {
-        WAIT_MS(5);
+        WAIT_MS(250);
         //printf("ax: %f ay: %f gz: %f\r\n",hardware.get_ax(),hardware.get_ay(),hardware.get_gz());
         // Aufgabe 2.4
         /*if(ti<.25)
             printf("%f %f\r\n",ti,TP(1));
         ti += Ts;*/
-        
+        printf("phi_bd: %f \r\n",hardware.get_phi_bd());
+
         }
 }   // END OF main
 

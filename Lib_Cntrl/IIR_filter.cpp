@@ -11,7 +11,7 @@ IIR_filter::IIR_filter(float tau,float Ts,float K)
 {
 /* *** AUFGABEN *** :
     2.1, 2.2, 2.3    */
-    b0 = Ts/tau;
+    b0 = K*Ts/tau;
     a0 = -(1-Ts/tau);
     yk = 0;
 
