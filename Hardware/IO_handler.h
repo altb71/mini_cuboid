@@ -42,6 +42,7 @@ private:
     LinearCharacteristics i2u;
     LinearCharacteristics ax2ax,ay2ay,gz2gz;    // map imu raw values to m/s^2 and rad/s
     IIR_filter fil_ax,fil_ay,fil_gz;
+    IIR_filter diff;
     Enc_unwrap_scale uw;
     Timer t_but;                            // define button time        // 
     // sensor states

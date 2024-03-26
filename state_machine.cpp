@@ -38,6 +38,8 @@ void state_machine::loop(void){
                 if(m_sa->get_key_state() && local_time>.5)
                     {
                     printf("switch to BALANCE\r\n");
+                    m_loop->enable_bal_cntrl();
+                    m_sa->enable_escon();
                     CS = BALANCE;
                     ti.reset();
                     }
@@ -47,6 +49,8 @@ void state_machine::loop(void){
                     {
                     printf("switch to INIT\r\n");
                     CS = INIT;
+                    m_loop->disable_all_cntrl();
+                    m_sa->disable_escon();
                     ti.reset();
                     }
                 break;

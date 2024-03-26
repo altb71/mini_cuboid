@@ -35,16 +35,16 @@ int main()
     WAIT_MS(20);
     sm.start_loop();
     //IIR_filter TP(.1,Ts,1);
-    //float ti = 0;
+    float ti = 0;
     while(1)
         {
-        WAIT_MS(250);
+        WAIT_MS(10);
         //printf("ax: %f ay: %f gz: %f\r\n",hardware.get_ax(),hardware.get_ay(),hardware.get_gz());
         // Aufgabe 2.4
-        /*if(ti<.25)
-            printf("%f %f\r\n",ti,TP(1));
-        ti += Ts;*/
-        printf("phi_bd: %f \r\n",hardware.get_phi_bd());
+        if(ti<2)
+            printf("%f %f %f\r\n",ti,hardware.get_phi_bd(),hardware.get_gz());
+        ti += .01;
+        //printf("phi_bd: %f Vphi_fw: %f\r\n",hardware.get_phi_bd(),hardware.get_vphi_fw());
 
         }
 }   // END OF main
