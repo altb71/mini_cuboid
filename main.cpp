@@ -1,6 +1,7 @@
 #include "mbed.h"
 #include <stdint.h>
 #include "math.h" 
+#include "Dense.h"
 #include "realtime_thread.h"
 #include "IO_handler.h"
 #include "state_machine.h"
