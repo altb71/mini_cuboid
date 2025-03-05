@@ -1,6 +1,6 @@
 #include "realtime_thread.h"
 using namespace std;
-using namespace Eigen;
+
 
 // contructor for controller loop
 realtime_thread::realtime_thread(IO_handler *io, float Ts) : thread(osPriorityHigh,4096)
@@ -20,13 +20,7 @@ realtime_thread::~realtime_thread() {}
 
 void realtime_thread::loop(void){
    
-    Matrix<float,1,2> K2;         // ss-controller 2nd order
-    Matrix<float,1,4> K4;         // ss-controller 4th order
-    Matrix<float,2,1> x2;         // state 2nd order
-    Matrix<float,4,1> x4;         // state 4th order
-    
-    K4 << 1,2,3,4;  // assign values to defined matrix
-
+  
     while(1)
         {
         ThisThread::flags_wait_any(threadFlag);

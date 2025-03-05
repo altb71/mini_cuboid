@@ -6,7 +6,6 @@
 #include "ThreadFlag.h"
 #include "PID_Cntrl.h"
 #include "IO_handler.h"
-#include "Dense.h"
 
 // This is the loop class, it is not a controller at first hand, it guarantees a cyclic call
 class realtime_thread
