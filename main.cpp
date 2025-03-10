@@ -10,8 +10,8 @@
 static BufferedSerial serial_port(USBTX, USBRX,115200);
 
 /* 
-This is the main function of embedded project "mini_cuboid" ZHAW FS23
-Altenburger February 2023
+This is the main function of embedded project "mini_cuboid" ZHAW FS25
+Altenburger March 2025
 */
 
 //******************************************************************************
