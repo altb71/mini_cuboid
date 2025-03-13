@@ -4,6 +4,7 @@
 #include "realtime_thread.h"
 #include "IO_handler.h"
 #include "state_machine.h"
+#include "IIR_filter.h"
 
 #define WAIT_MS(x) ThisThread::sleep_for(chrono::milliseconds(x));
 
@@ -28,6 +29,11 @@ int main()
     state_machine sm(&hardware,&rt_thread,0.02);
     WAIT_MS(200);
     printf("- - - - MiniCuboid Start! - - - \r\n");
+    //IIR_filter fil(0.1,0.01,1);
+    //for(int k=0;k<60;k++)
+    //    printf("%f\r\n",fil(1));
+
+
 // ----------------------------------
     rt_thread.start_loop();
     WAIT_MS(20);
@@ -35,8 +41,10 @@ int main()
     while(1)
         {
         WAIT_MS(500);
-        printf("ax: %f ay: %f gz: %f\r\n",hardware.get_ax(),hardware.get_ay(),hardware.get_gz());
+        //printf("ax: %f ay: %f gz: %f\r\n",hardware.get_ax(),hardware.get_ay(),hardware.get_gz());
         // Aufgabe 2.4
+        printf("phi_bd: %f \r\n",hardware.get_phi_bd());
+        
         }
 }   // END OF main
 

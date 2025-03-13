@@ -10,6 +10,7 @@ Tasks for students:
 #include "LinearCharacteristics.h"
 #include "Enc_unwrap_scale.h"
 #include "mpu6500_spi.h"
+#include "IIR_filter.h"
 
 
 class IO_handler
@@ -49,6 +50,7 @@ private:
     void but_pressed(void);
     void but_released(void);
     bool key_was_pressed;
+    IIR_filter fil_ax,fil_ay,fil_gz;
     /*  Aufgabe 3.1   */ 
 
 };
