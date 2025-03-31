@@ -51,6 +51,7 @@ private:
     void but_released(void);
     bool key_was_pressed;
     IIR_filter fil_ax,fil_ay,fil_gz;
+    IIR_filter diff;
     /*  Aufgabe 3.1   */ 
 
 };

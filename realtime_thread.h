@@ -27,6 +27,7 @@ private:
     Timer ti;
     PID_Cntrl flat_vel_cntrl;
     PID_Cntrl bal_vel_cntrl;
+    PID_Cntrl I_reg;
     float Ts;
     bool bal_cntrl_enabled;
     bool vel_cntrl_enabled;

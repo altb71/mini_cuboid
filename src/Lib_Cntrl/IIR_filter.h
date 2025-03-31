@@ -13,7 +13,7 @@ class IIR_filter
 {
 public:
     IIR_filter(){};                 // default constructor
-    IIR_filter(float,float);        
+    IIR_filter(float,float);        // differentiator
     IIR_filter(float,float,float);  // 1st order LP filter
     virtual ~IIR_filter();
     float eval(float);
@@ -23,6 +23,6 @@ public:
 private:
     float *B;
     float *A;
-    float a0,b0,yk;
+    float a0,b0,yk,b1,uk;
     uint8_t nb,na;
 };

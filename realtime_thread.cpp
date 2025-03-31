@@ -10,6 +10,7 @@ realtime_thread::realtime_thread(IO_handler *io, float Ts) : thread(osPriorityHi
     m_io->disable_escon();
     ti.reset();
     ti.start();
+    I_reg = PID_Cntrl(0,1,0,0,Ts,-1000,1000);
     }
 
 // decontructor for controller loop
@@ -19,7 +20,11 @@ realtime_thread::~realtime_thread() {}
 // this is the main loop called every Ts with high priority
 
 void realtime_thread::loop(void){
-   
+   float K2[2] = {-0.9602,-0.0611};
+   float K4[4] = {-1.7131,   -0.1553,   -0.0029,    0.0023};
+   float M_mot;
+   float km = 36.9e-3;
+   float kp = 0.5;
   
     while(1)
         {
@@ -29,9 +34,18 @@ void realtime_thread::loop(void){
         if(bal_cntrl_enabled)
             {
                 /* Aufgabe 5.1 */
+                //M_mot = -(K2[0] * m_io->get_phi_bd() + K2[1] * m_io->get_gz());
+                M_mot = -(K4[0] * m_io->get_phi_bd() + K4[1] * m_io->get_gz() +
+                          K4[2] * m_io->get_vphi_fw() + K4[3] * I_reg(0 - m_io->get_vphi_fw()));
+                
+                
+                m_io->write_current(M_mot/km);
+
             }
         else if(vel_cntrl_enabled)
             {
+                float i_des = kp * ( 0 - m_io->get_vphi_fw());
+                m_io->write_current(i_des);
 
             }
         else 
@@ -61,10 +75,12 @@ float realtime_thread::est_angle(void)
 void realtime_thread::enable_vel_cntrl(void)
 {
     vel_cntrl_enabled = true;
+    bal_cntrl_enabled = false;
 }
 void realtime_thread::enable_bal_cntrl(void)
 {
     bal_cntrl_enabled = true;
+    vel_cntrl_enabled = false;
 }
 void realtime_thread::reset_cntrl(void)
 {
