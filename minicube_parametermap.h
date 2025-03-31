@@ -52,7 +52,7 @@ static std::map<unsigned long long, minicube_t> minicube_map = {
 	{0x533250060020003D, {.modell_name = PURPLE_4, .imu_acc_x_m1g = -16290.00, .imu_acc_x_p1g = 16570.00, .imu_acc_y_m1g = -17210.00, .imu_acc_y_p1g = 15630.00}},
 	{0x5956501800620065, {.modell_name = RED_1, .imu_acc_x_m1g = -16250.00, .imu_acc_x_p1g = 16650.00, .imu_acc_y_m1g = -17440.00, .imu_acc_y_p1g = 15440.00}},
 	{0x53325006005A004A, {.modell_name = RED_2, .imu_acc_x_m1g = -15700.00, .imu_acc_x_p1g = 17140.00, .imu_acc_y_m1g = -17370.00, .imu_acc_y_p1g = 15480.00}},
-	{0x5332500600300026, {.modell_name = RED_3, .imu_acc_x_m1g = -16200.00, .imu_acc_x_p1g = 16640.00, .imu_acc_y_m1g = -17290.00, .imu_acc_y_p1g = 15535.00}},
+	{0x37325001002B006D, {.modell_name = RED_3, .imu_acc_x_m1g = -16200.00, .imu_acc_x_p1g = 16640.00, .imu_acc_y_m1g = -17290.00, .imu_acc_y_p1g = 15535.00}},
 	{0x5332500500370056, {.modell_name = RED_4, .imu_acc_x_m1g = -16090.00, .imu_acc_x_p1g = 16620.00, .imu_acc_y_m1g = -16700.00, .imu_acc_y_p1g = 16090.00}},
 	{0x53325005004B0069, {.modell_name = ORANGE_1, .imu_acc_x_m1g = -16110.00, .imu_acc_x_p1g = 16726.00, .imu_acc_y_m1g = -16690.00, .imu_acc_y_p1g = 16155.00}},
 	{0x5332500600460037, {.modell_name = ORANGE_2, .imu_acc_x_m1g = -16200.00, .imu_acc_x_p1g = 16630.00, .imu_acc_y_m1g = -17474.00, .imu_acc_y_p1g = 15420.00}},
