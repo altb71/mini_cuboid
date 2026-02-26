@@ -1,2 +1,3 @@
-# mini_cuboid
-mini-cuboid for Nacht der technik July 2022 (dancing cubes)
+# Mini Cuboid
+
+Mini Cuboid Mbed Project for the course Control Systems 2.
