@@ -11,8 +11,8 @@
 #define ENCODER_COUNTER_INDEX_H_
 
 #include <cstdlib>
-#include <stdint.h>
 #include <mbed.h>
+#include <stdint.h>
 
 class EncoderCounter;
 
@@ -20,22 +20,19 @@ class EncoderCounter;
  * The <code>EncoderCounterIndex</code> class implements an interrupt service routine
  * to catch the current encoder position when an index pulse is received.
  */
-class EncoderCounterIndex {
-    
-    public:
-        
-                    EncoderCounterIndex(EncoderCounter& encoderCounter, InterruptIn& channelIndex);
-        virtual     ~EncoderCounterIndex();
-        int32_t     getPositionAtIndexPulse();
-        int32_t                 positionAtIndexPulse;
-        
-    private:
-        
-        EncoderCounter&         encoderCounter;
-        InterruptIn&            channelIndex;
-        void                    rise();
+class EncoderCounterIndex
+{
+
+public:
+    EncoderCounterIndex(EncoderCounter &encoderCounter, InterruptIn &channelIndex);
+    virtual ~EncoderCounterIndex();
+    int32_t getPositionAtIndexPulse();
+    int32_t positionAtIndexPulse;
+
+private:
+    EncoderCounter &encoderCounter;
+    InterruptIn &channelIndex;
+    void rise();
 };
 
 #endif /* ENCODER_COUNTER_INDEX_H_ */
-
-

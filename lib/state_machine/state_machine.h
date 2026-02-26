@@ -1,10 +1,11 @@
-#include "mbed.h"
-#include "sensors_actuators.h"
-#include "ControllerLoop.h"
-#include "minicube_parametermap.h"
-#include "choreography.h"
 #include <iterator>
 #include <vector>
+
+#include "ControllerLoop.h"
+#include "choreography.h"
+#include "mbed.h"
+#include "minicube_parametermap.h"
+#include "sensors_actuators.h"
 
 #define PI 3.1415927
 
@@ -28,19 +29,18 @@
 #define AY_LIMIT 2.0
 #define AX_LIMIT 8.0
 
-
 // This is the loop class, it is not a controller at first hand, it guarantees a cyclic call
 class state_machine
 {
 public:
-    state_machine(sensors_actuators *,ControllerLoop *,float Ts);
-    virtual     ~state_machine();
+    state_machine(sensors_actuators *, ControllerLoop *, float Ts);
+    virtual ~state_machine();
     void start_loop(void);
 
 private:
     void loop(void);
-    uint8_t CS;             // the current state
-    uint8_t C_SS;             // the current state
+    uint8_t CS;   // the current state
+    uint8_t C_SS; // the current state
     Thread thread;
     Ticker ticker;
     ThreadFlag threadFlag;
@@ -55,5 +55,5 @@ private:
     uint8_t get_curr_bar(void);
     uint8_t curr_bar;
     bool use_choreo;
-    float saturate(float,float,float);
+    float saturate(float, float, float);
 };

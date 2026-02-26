@@ -1,19 +1,18 @@
 #pragma once
 
-#include "mbed.h"
 #include "EncoderCounter.h"
-#include "LinearCharacteristics.h"
-#include "ThreadFlag.h"
-#include "PID_Cntrl.h"
-#include "sensors_actuators.h"
 #include "IIR_filter.h"
-
+#include "LinearCharacteristics.h"
+#include "PID_Cntrl.h"
+#include "ThreadFlag.h"
+#include "mbed.h"
+#include "sensors_actuators.h"
 
 // This is the loop class, it is not a controller at first hand, it guarantees a cyclic call
 class ControllerLoop
 {
 public:
-    ControllerLoop(sensors_actuators *,float Ts);
+    ControllerLoop(sensors_actuators *, float Ts);
     virtual ~ControllerLoop();
     void start_loop(void);
     void enable_vel_cntrl(void);
@@ -21,7 +20,7 @@ public:
     void reset_cntrl(void);
     void disable_all_cntrl();
     float phi_bd_des;
- 
+
 private:
     void loop(void);
     Thread thread;
@@ -37,5 +36,5 @@ private:
     void sendSignal();
     float est_angle();
     sensors_actuators *m_sa;
-    float saturate(float,float,float);
+    float saturate(float, float, float);
 };
