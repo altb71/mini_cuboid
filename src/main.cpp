@@ -1,17 +1,17 @@
 #include <stdint.h>
 #include <chrono>
 
-#include "ControllerLoop.h"
+#include "realtime_thread.h"
 #include "GPA.h"
 #include "math.h"
 #include "mbed.h"
 #include "minicube_parametermap.h"
-#include "sensors_actuators.h"
+#include "IO_handler.h"
 #include "state_machine.h"
 using namespace std::chrono_literals;
 /*
 software (running) for "Nacht der Technik" July 2022. Concept
-    - 2 types of controllers running in ControllerLoop.cpp at 500Hz
+    - 2 types of controllers running in realtime_thread.cpp at 500Hz
         * balance controller at unstable position on edge
         * PI-controller to keep disc speed at 0, when lying on edge
     - controllers are enabled/disabled in state_machine.cpp
@@ -31,8 +31,8 @@ GPA myGPA(.7, 250, 30, 4, 4, Ts); // para for plant identification (currently no
 //******************************************************************************
 int main()
 {
-    sensors_actuators hardware(Ts);     // in this class all the physical ios are handled
-    ControllerLoop loop(&hardware, Ts); // this is for the main controller loop
+    IO_handler hardware(Ts);     // in this class all the physical ios are handled
+    realtime_thread loop(&hardware, Ts); // this is for the main controller loop
     state_machine sm(&hardware, &loop, 0.02);
     ThisThread::sleep_for(200ms);
     uint32_t *uid = (uint32_t *)0x1FFF7590;

@@ -6,14 +6,14 @@
 #include "PID_Cntrl.h"
 #include "ThreadFlag.h"
 #include "mbed.h"
-#include "sensors_actuators.h"
+#include "IO_handler.h"
 
 // This is the loop class, it is not a controller at first hand, it guarantees a cyclic call
-class ControllerLoop
+class realtime_thread
 {
 public:
-    ControllerLoop(sensors_actuators *, float Ts);
-    virtual ~ControllerLoop();
+    realtime_thread(IO_handler *, float Ts);
+    virtual ~realtime_thread();
     void start_loop(void);
     void enable_vel_cntrl(void);
     void enable_bal_cntrl(void);
@@ -35,6 +35,6 @@ private:
     bool vel_cntrl_enabled;
     void sendSignal();
     float est_angle();
-    sensors_actuators *m_sa;
+    IO_handler *m_sa;
     float saturate(float, float, float);
 };

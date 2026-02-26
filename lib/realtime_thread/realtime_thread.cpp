@@ -1,4 +1,4 @@
-#include "ControllerLoop.h"
+#include "realtime_thread.h"
 
 #include <chrono>
 
@@ -8,7 +8,7 @@ using namespace std;
 using namespace std::chrono;
 
 // contructor for controller loop
-ControllerLoop::ControllerLoop(sensors_actuators *sa, float Ts)
+realtime_thread::realtime_thread(IO_handler *sa, float Ts)
     : thread(osPriorityHigh, 4096)
 {
     this->Ts = Ts;
@@ -25,10 +25,10 @@ ControllerLoop::ControllerLoop(sensors_actuators *sa, float Ts)
 }
 
 // decontructor for controller loop
-ControllerLoop::~ControllerLoop() {}
+realtime_thread::~realtime_thread() {}
 // ----------------------------------------------------------------------------
 // this is the main loop called every Ts with high priority
-void ControllerLoop::loop(void)
+void realtime_thread::loop(void)
 {
     // float i_des = 0;
     // uint8_t k = 0;
@@ -52,34 +52,34 @@ void ControllerLoop::loop(void)
     } // endof the main loop
 }
 
-void ControllerLoop::sendSignal() { thread.flags_set(threadFlag); }
-void ControllerLoop::start_loop(void)
+void realtime_thread::sendSignal() { thread.flags_set(threadFlag); }
+void realtime_thread::start_loop(void)
 {
-    thread.start(callback(this, &ControllerLoop::loop));
-    ticker.attach(callback(this, &ControllerLoop::sendSignal), microseconds{static_cast<int64_t>(Ts * 1e6f)});
+    thread.start(callback(this, &realtime_thread::loop));
+    ticker.attach(callback(this, &realtime_thread::sendSignal), microseconds{static_cast<int64_t>(Ts * 1e6f)});
 }
 
-void ControllerLoop::enable_vel_cntrl(void)
+void realtime_thread::enable_vel_cntrl(void)
 {
     vel_cntrl_enabled = true;
     bal_cntrl_enabled = false;
 }
-void ControllerLoop::enable_bal_cntrl(void)
+void realtime_thread::enable_bal_cntrl(void)
 {
     bal_cntrl_enabled = true;
     vel_cntrl_enabled = false;
 }
-void ControllerLoop::reset_cntrl(void)
+void realtime_thread::reset_cntrl(void)
 {
     I_cntrl.reset(0);
     flat_vel_cntrl.reset(0);
 }
-void ControllerLoop::disable_all_cntrl()
+void realtime_thread::disable_all_cntrl()
 {
     bal_cntrl_enabled = false;
     vel_cntrl_enabled = false;
 }
-float ControllerLoop::saturate(float x, float ll, float ul)
+float realtime_thread::saturate(float x, float ll, float ul)
 {
     if (x > ul)
         return ul;

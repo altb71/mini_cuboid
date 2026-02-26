@@ -11,7 +11,7 @@ the speed of the state change is based on the 126BPM music tune Medina by "no Ja
 */
 
 // contructor for state_machine
-state_machine::state_machine(sensors_actuators *sa, ControllerLoop *loop, float Ts)
+state_machine::state_machine(IO_handler *sa, realtime_thread *loop, float Ts)
     : thread(osPriorityNormal, 4096 * 2)
 {
     this->Ts = Ts;

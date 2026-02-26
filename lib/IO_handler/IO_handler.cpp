@@ -1,10 +1,10 @@
-#include "sensors_actuators.h"
+#include "IO_handler.h"
 #include <chrono>
 
 #define PI 3.1415927
 // constructors
 
-sensors_actuators::sensors_actuators(float Ts)
+IO_handler::IO_handler(float Ts)
     : di(2 * Ts, Ts)
     , counter(PA_8, PA_9)
     , i_des(PA_4)
@@ -31,8 +31,8 @@ sensors_actuators::sensors_actuators(float Ts)
     dif_ax.setup(.05, Ts);
     dif_ay.setup(.05, Ts);
     // --------------------------------------------------
-    button.fall(callback(this, &sensors_actuators::but_pressed));  // attach key pressed function
-    button.rise(callback(this, &sensors_actuators::but_released)); // attach key pressed function
+    button.fall(callback(this, &IO_handler::but_pressed));  // attach key pressed function
+    button.rise(callback(this, &IO_handler::but_released)); // attach key pressed function
     key_was_pressed = false;
     i_enable = 0;
     counter.reset(); // encoder reset
@@ -41,9 +41,9 @@ sensors_actuators::sensors_actuators(float Ts)
     global_enable = true;
 }
 // Deconstructor
-sensors_actuators::~sensors_actuators() {}
+IO_handler::~IO_handler() {}
 
-void sensors_actuators::read_sensors_calc_speed(void)
+void IO_handler::read_sensors_calc_speed(void)
 {
     phi_fw = uw(counter);
     Vphi_fw = di(phi_fw);
@@ -68,31 +68,31 @@ void sensors_actuators::read_sensors_calc_speed(void)
     phi_bd = uw2pi(atan2(accx, accy) + gyrz_fil - PI / 4);
 }
 
-void sensors_actuators::enable_escon(void)
+void IO_handler::enable_escon(void)
 {
     i_enable = global_enable; // global_enable can only be set at startup, if FW too fast, global_enable = false, need
                               // to reset system
 }
-void sensors_actuators::disable_escon(void) { i_enable = 0; }
+void IO_handler::disable_escon(void) { i_enable = 0; }
 
-void sensors_actuators::force_curr(float _i_des) { i_des = i2u(_i_des); }
-void sensors_actuators::write_current(float _i_des) { i_des = i2u(_i_des); }
+void IO_handler::force_curr(float _i_des) { i_des = i2u(_i_des); }
+void IO_handler::write_current(float _i_des) { i_des = i2u(_i_des); }
 
-float sensors_actuators::get_phi_fw(void) { return phi_fw; }
-float sensors_actuators::get_phi_bd(void) { return phi_bd; }
-float sensors_actuators::get_vphi_fw(void) { return Vphi_fw; }
-float sensors_actuators::get_ax(void) { return accx; }
-float sensors_actuators::get_ay(void) { return accy; }
-float sensors_actuators::get_gz(void) { return gyrz; }
+float IO_handler::get_phi_fw(void) { return phi_fw; }
+float IO_handler::get_phi_bd(void) { return phi_bd; }
+float IO_handler::get_vphi_fw(void) { return Vphi_fw; }
+float IO_handler::get_ax(void) { return accx; }
+float IO_handler::get_ay(void) { return accy; }
+float IO_handler::get_gz(void) { return gyrz; }
 // start timer as soon as Button is pressed
-void sensors_actuators::but_pressed()
+void IO_handler::but_pressed()
 {
     t_but.start();
     key_was_pressed = false;
 }
 
 // evaluating statemachine
-void sensors_actuators::but_released()
+void IO_handler::but_released()
 {
     // readout, stop and reset timer
     float ButtonTime = std::chrono::duration<float>{t_but.elapsed_time()}.count();
@@ -101,7 +101,7 @@ void sensors_actuators::but_released()
     if (ButtonTime > 0.05f && ButtonTime < 0.5)
         key_was_pressed = true;
 }
-bool sensors_actuators::get_but()
+bool IO_handler::get_but()
 {
     // readout, stop and reset timer
     if (key_was_pressed) {

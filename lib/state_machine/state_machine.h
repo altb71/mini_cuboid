@@ -1,11 +1,11 @@
 #include <iterator>
 #include <vector>
 
-#include "ControllerLoop.h"
+#include "realtime_thread.h"
 #include "choreography.h"
 #include "mbed.h"
 #include "minicube_parametermap.h"
-#include "sensors_actuators.h"
+#include "IO_handler.h"
 
 #define PI 3.1415927
 
@@ -33,7 +33,7 @@
 class state_machine
 {
 public:
-    state_machine(sensors_actuators *, ControllerLoop *, float Ts);
+    state_machine(IO_handler *, realtime_thread *, float Ts);
     virtual ~state_machine();
     void start_loop(void);
 
@@ -48,8 +48,8 @@ private:
     Timer gti;
     float Ts;
     void sendSignal();
-    sensors_actuators *m_sa;
-    ControllerLoop *m_loop;
+    IO_handler *m_sa;
+    realtime_thread *m_loop;
     bool detect_on_edge();
     float phi_bd_des_target;
     uint8_t get_curr_bar(void);
