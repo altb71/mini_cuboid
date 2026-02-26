@@ -1,4 +1,5 @@
 #include "sensors_actuators.h"
+#include <chrono>
 
 #define PI 3.1415927
 // constructors
@@ -6,12 +7,12 @@
 sensors_actuators::sensors_actuators(float Ts)
     : di(2 * Ts, Ts)
     , counter(PA_8, PA_9)
+    , i_des(PA_4)
     , i_enable(PB_1)
     , button(PA_10)
-    , i_des(PA_4)
-    , uw(4 * 2048, 16)
     , spi(PA_12, PA_11, PA_1)
     , imu(spi, PB_0)
+    , uw(4 * 2048, 16)
 {
     i2u.setup(-15, 15, 0.0f, 1.0f);
     ax2ax.setup(0, 1, 0, 1); // use these for first time, adapt values according
@@ -94,7 +95,7 @@ void sensors_actuators::but_pressed()
 void sensors_actuators::but_released()
 {
     // readout, stop and reset timer
-    float ButtonTime = t_but.read();
+    float ButtonTime = std::chrono::duration<float>{t_but.elapsed_time()}.count();
     t_but.stop();
     t_but.reset();
     if (ButtonTime > 0.05f && ButtonTime < 0.5)

@@ -1,7 +1,11 @@
 #include "ControllerLoop.h"
 
+#include <chrono>
+
 #include "GPA.h"
+
 using namespace std;
+using namespace std::chrono;
 
 // contructor for controller loop
 ControllerLoop::ControllerLoop(sensors_actuators *sa, float Ts)
@@ -26,9 +30,9 @@ ControllerLoop::~ControllerLoop() {}
 // this is the main loop called every Ts with high priority
 void ControllerLoop::loop(void)
 {
-    float i_des = 0;
-    uint8_t k = 0;
-    float K[2] = {-1.3924, -0.0864};
+    // float i_des = 0;
+    // uint8_t k = 0;
+    // float K[2] = {-1.3924, -0.0864};
     float K4[4] = {-2.9527, -0.2872, -0.008, 0.0069};
     float M_des;
     while (1) {
@@ -52,7 +56,7 @@ void ControllerLoop::sendSignal() { thread.flags_set(threadFlag); }
 void ControllerLoop::start_loop(void)
 {
     thread.start(callback(this, &ControllerLoop::loop));
-    ticker.attach(callback(this, &ControllerLoop::sendSignal), Ts);
+    ticker.attach(callback(this, &ControllerLoop::sendSignal), microseconds{static_cast<int64_t>(Ts * 1e6f)});
 }
 
 void ControllerLoop::enable_vel_cntrl(void)

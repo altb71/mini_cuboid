@@ -1,4 +1,5 @@
 #include <stdint.h>
+#include <chrono>
 
 #include "ControllerLoop.h"
 #include "GPA.h"
@@ -7,6 +8,7 @@
 #include "minicube_parametermap.h"
 #include "sensors_actuators.h"
 #include "state_machine.h"
+using namespace std::chrono_literals;
 /*
 software (running) for "Nacht der Technik" July 2022. Concept
     - 2 types of controllers running in ControllerLoop.cpp at 500Hz
@@ -32,17 +34,17 @@ int main()
     sensors_actuators hardware(Ts);     // in this class all the physical ios are handled
     ControllerLoop loop(&hardware, Ts); // this is for the main controller loop
     state_machine sm(&hardware, &loop, 0.02);
-    ThisThread::sleep_for(200);
+    ThisThread::sleep_for(200ms);
     uint32_t *uid = (uint32_t *)0x1FFF7590;
     //    printf("\r\nUnique ID: %08X %08X %08X \r\n", uid[0], uid[1], uid[2]);
-    printf("\r\nUnique ID: %08X %08X \r\n", uid[1], uid[0]);
+    printf("\r\nUnique ID: %08lX %08lX \r\n", static_cast<unsigned long>(uid[1]), static_cast<unsigned long>(uid[0]));
     // ----------------------------------
-    ThisThread::sleep_for(20);
+    ThisThread::sleep_for(20ms);
     loop.start_loop();
-    ThisThread::sleep_for(20);
+    ThisThread::sleep_for(20ms);
     sm.start_loop();
     while (1)
-        ThisThread::sleep_for(200);
+        ThisThread::sleep_for(200ms);
 } // END OF main
 /*      MATLAB CODE for controller design
 m = 0.816;

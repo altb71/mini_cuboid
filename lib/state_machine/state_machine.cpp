@@ -1,5 +1,9 @@
 #include "state_machine.h"
+
+#include <chrono>
+
 using namespace std;
+
 /*
 state_machine.cpp defines the individual sequences of cuboids
 currently the states "walk_LEFT_FAST/RIGHT" are not used.
@@ -27,19 +31,19 @@ state_machine::~state_machine() {}
 // ----------------------------------------------------------------------------
 void state_machine::loop(void)
 {
-    float down_speed = 1.1;
+    // float down_speed = 1.1;
     float bar2sec = 60.0f / 126.0f * 4.0f; // seconds per bar
     float sec2bar = 1.0f / bar2sec;
     float dphi = 0;
     float om_slow = 2 * PI * sec2bar * 2;
     float om_fast = 2 * PI * sec2bar * 4;
     float t_offset = 0.0;
-    float del_t = 0.0;
+    // float del_t = 0.0;
     float max_ax = 0;
     float max_ay = 0;
     float max_v = 0;
-    uint8_t old_state;
-    uint8_t old_bar;
+    uint8_t old_state = CS;
+    uint8_t old_bar = curr_bar;
     float time_for_half_mode = bar2sec;
     // std::vector<int>::iterator itrtr = CHOREOGRAPHY.begin();
     // volatile int choreoState = *itrtr;
@@ -47,8 +51,8 @@ void state_machine::loop(void)
         ThisThread::flags_wait_any(threadFlag);
         // THE LOOP ------------------------------------------------------------
         // this statemachine is for later use, here, just test sensors
-        float gt = gti.read() - .05;
-        float lt = lti.read();
+        float gt = std::chrono::duration<float>{gti.elapsed_time()}.count() - .05f;
+        float lt = std::chrono::duration<float>{lti.elapsed_time()}.count();
         if (use_choreo) {
             old_state = CS;
             old_bar = curr_bar;
@@ -60,6 +64,7 @@ void state_machine::loop(void)
                 max_v = fabs(m_sa->get_vphi_fw());
             if (fabs(m_sa->ay_fil) > max_ay)
                 max_ay = fabs(m_sa->ay_fil);
+            (void)max_ax; // silence unused-but-set warning while keeping placeholder
         }
         if (old_state != CS && use_choreo) {
             // printf("old: %d, CS: %d\r\n",old_state,CS);
@@ -105,7 +110,7 @@ void state_machine::loop(void)
                     if (detect_on_edge()) {
                         lti.reset();
                         lt = 0;
-                        del_t = 0.0;
+                        // del_t = 0.0;
                         C_SS = DOWN;
                         printf("New: go DOWN!\r\n");
                         t_offset = 0;
@@ -141,7 +146,7 @@ void state_machine::loop(void)
                    m_sa->get_phi_bd(),
                    max_v);
             // printf("max: %f, may: %f\r\n",max_ax,max_ay);
-            max_ax = max_ay = 0;
+                 max_ax = max_ay = 0;
         }
         switch (CS) {
             case INIT:
@@ -292,7 +297,7 @@ void state_machine::sendSignal() { thread.flags_set(threadFlag); }
 void state_machine::start_loop(void)
 {
     thread.start(callback(this, &state_machine::loop));
-    ticker.attach(callback(this, &state_machine::sendSignal), Ts);
+    ticker.attach(callback(this, &state_machine::sendSignal), std::chrono::microseconds{static_cast<int64_t>(Ts * 1e6f)});
 }
 bool state_machine::detect_on_edge(void)
 {

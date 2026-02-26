@@ -44,9 +44,8 @@ private:
     AnalogOut i_des;        // desired current values
     DigitalOut i_enable;
     InterruptIn button;
-    mpu6500_spi imu;
-    //-------------------------------------
     SPI spi; // mosi, miso, sclk
+    mpu6500_spi imu;
     LinearCharacteristics i2u;
     LinearCharacteristics ax2ax, ay2ay, gz2gz; // map imu raw values to m/s^2 and rad/s
     Enc_unwrap_scale uw;
