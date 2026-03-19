@@ -1,85 +1,89 @@
 #include "realtime_thread.h"
+
 using namespace std;
 
-// contructor for controller loop
-realtime_thread::realtime_thread(IO_handler *io, float Ts)
-    : thread(osPriorityHigh, 4096)
+// contructor for realtime_thread loop
+realtime_thread::realtime_thread(IO_handler *io_handler, float Ts)
+    : m_Thread(osPriorityHigh, 4096)
 {
-    this->Ts = Ts;
-    this->m_io = io;
-    m_io->disable_escon();
-    ti.reset();
-    ti.start();
+    m_Ts = Ts;                 // the sampling time
+    m_IO_handler = io_handler; // a pointer to the io handler
+    m_state = INIT;
+    m_IO_handler->disable_escon();
+    m_Timer.reset();
+    m_Timer.start();
     I_reg = PID_Cntrl(0, 1, 0, 0, Ts, -1000, 1000);
 }
 
 // decontructor for controller loop
 realtime_thread::~realtime_thread() {}
 
-// ----------------------------------------------------------------------------
 // this is the main loop called every Ts with high priority
-
 void realtime_thread::loop(void)
 {
-    Eigen::Matrix<float, 1, 2> K2;
-    K2 << -0.9602, -0.0611;
-    Eigen::Matrix<float, 2, 1> x;
     Eigen::Matrix<float, 1, 4> K4;
     K4 << -1.7131, -0.1553, -0.0029, 0.0023;
     Eigen::Matrix<float, 4, 1> x_bar;
     float M_mot;
     float km = 36.9e-3;
-    float kp = 0.5;
+    float kp = 0.3;
+    float time;
 
     while (1) {
-        ThisThread::flags_wait_any(threadFlag);
-        // THE LOOP ------------------------------------------------------------
-        m_io->read_sensors_calc_speed(); // first read all sensors, calculate motor speed and angle of body
-        if (bal_cntrl_enabled) {
-            /* Aufgabe 5.1 */
-            // x << m_io->get_phi_bd(), m_io->get_gz();
-            // M_mot = -K2 * x;
+        ThisThread::flags_wait_any(m_ThreadFlag);
+        time = 1e-6f * (float)(duration_cast<microseconds>(m_Timer.elapsed_time()).count());
+        // --------------------- THE LOOP ---------------------
 
-            x_bar << m_io->get_phi_bd(), m_io->get_gz(), m_io->get_phi_fw_vel(), I_reg(0 - m_io->get_phi_fw_vel());
-            M_mot = -K4 * x_bar;
+        m_IO_handler->update();
 
-            m_io->write_current(M_mot / km);
-
-        } else if (vel_cntrl_enabled) {
-            float i_des = kp * (0 - m_io->get_phi_fw_vel());
-            m_io->write_current(i_des);
-
-        } else {
-            m_io->write_current(0);
+        float i_des = 0.0f;
+        bool do_transition = false;
+        if (m_IO_handler->get_key_state() && (time > 0.5f)) {
+            do_transition = true;
+            m_Timer.reset();
         }
-    } // endof the main loop
+
+        switch (m_state) {
+            case INIT: {
+                m_IO_handler->disable_escon();
+                I_reg.reset();
+                if (do_transition) {
+                    m_state = FLAT;
+                    printf("switch to FLAT\r\n");
+                    m_IO_handler->enable_escon();
+                }
+                break;
+            }
+            case FLAT: {
+                i_des = kp * (0 - m_IO_handler->get_phi_fw_vel());
+                if (do_transition) {
+                    m_state = BALANCE;
+                    printf("switch to BALANCE\r\n");
+                }
+                break;
+            }
+            case BALANCE: {
+                x_bar << m_IO_handler->get_phi_bd(), m_IO_handler->get_gz(), m_IO_handler->get_phi_fw_vel(),
+                    I_reg(0 - m_IO_handler->get_phi_fw_vel());
+                M_mot = -K4 * x_bar;
+                i_des = M_mot / km;
+                if (do_transition) {
+                    m_state = INIT;
+                    printf("switch to INIT\r\n");
+                }
+                break;
+            }
+            default:
+                break;
+        }
+        m_IO_handler->write_current(i_des);
+    }
 }
 
-void realtime_thread::sendSignal() { thread.flags_set(threadFlag); }
+void realtime_thread::sendSignal() { m_Thread.flags_set(m_ThreadFlag); }
+
 void realtime_thread::start_loop(void)
 {
-    thread.start(callback(this, &realtime_thread::loop));
-    ticker.attach(callback(this, &realtime_thread::sendSignal), microseconds{static_cast<int64_t>(Ts * 1e6f)});
-}
-
-/* est_angle: estimate angle from acc and gyro data. This function would also fit to the "sensors_actuators"- class
-but here it is better visible for students.
-*/
-float realtime_thread::est_angle(void) { return 0; }
-
-void realtime_thread::enable_vel_cntrl(void)
-{
-    vel_cntrl_enabled = true;
-    bal_cntrl_enabled = false;
-}
-void realtime_thread::enable_bal_cntrl(void)
-{
-    bal_cntrl_enabled = true;
-    vel_cntrl_enabled = false;
-}
-void realtime_thread::reset_cntrl(void) {}
-void realtime_thread::disable_all_cntrl()
-{
-    bal_cntrl_enabled = false;
-    vel_cntrl_enabled = false;
+    m_Thread.start(callback(this, &realtime_thread::loop));
+    m_Ticker.attach(callback(this, &realtime_thread::sendSignal), microseconds{static_cast<int64_t>(m_Ts * 1e6f)});
 }

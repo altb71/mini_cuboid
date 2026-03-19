@@ -13,7 +13,7 @@ IO_handler::IO_handler(float Ts)
     , m_spi(PA_12, PA_11, PA_1)
     , m_imu(m_spi, PB_0)
 {
-    m_button.fall(callback(this, &IO_handler::but_pressed)); // attach debounced key press function
+    m_button.rise(callback(this, &IO_handler::but_pressed)); // attach debounced key press function
     m_button_was_pressed = false;
 
     m_d_out = 0;
@@ -41,7 +41,7 @@ IO_handler::IO_handler(float Ts)
 
 IO_handler::~IO_handler() {}
 
-void IO_handler::read_sensors_calc_speed(void)
+void IO_handler::update(void)
 {
     m_phi_fw = m_encoder.getAngleRad();
     m_phi_fw_vel = m_fil_diff(m_phi_fw);

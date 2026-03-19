@@ -11,7 +11,7 @@ public:
 
     virtual ~PID_Cntrl();
 
-    void reset(float initValue);
+    void reset(float initValue = 0.0f);
     void setCoefficients(float P, float I, float D, float tau_f, float Ts, float uMin, float uMax);
     float update(float e);
     float saturate(float);

@@ -14,7 +14,7 @@ public:
     IO_handler(float Ts);  // default constructor
     virtual ~IO_handler(); // deconstructor
 
-    void read_sensors_calc_speed(void); // read both encoders and calculate speeds
+    void update(void); // read both encoders and calculate speeds
 
     float get_phi_fw(void);     // get angle of motor k
     float get_phi_bd(void);     // get angle of motor k

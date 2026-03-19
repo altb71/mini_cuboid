@@ -9,31 +9,28 @@
 #include "ThreadFlag.h"
 #include "mbed.h"
 
-// This is the loop class, it is not a controller at first hand, it guarantees a cyclic call
 class realtime_thread
 {
 public:
     realtime_thread(IO_handler *, float Ts);
     virtual ~realtime_thread();
     void start_loop(void);
-    void enable_vel_cntrl(void);
-    void enable_bal_cntrl(void);
-    void reset_cntrl(void);
-    void disable_all_cntrl();
 
 private:
+    enum ControlState {
+        INIT,
+        FLAT,
+        BALANCE
+    };
+
+    IO_handler *m_IO_handler;
     void loop(void);
-    Thread thread;
-    Ticker ticker;
-    ThreadFlag threadFlag;
-    Timer ti;
-    PID_Cntrl flat_vel_cntrl;
-    PID_Cntrl bal_vel_cntrl;
+    Thread m_Thread;
+    Ticker m_Ticker;
+    ThreadFlag m_ThreadFlag;
+    Timer m_Timer;
     PID_Cntrl I_reg;
-    float Ts;
-    bool bal_cntrl_enabled;
-    bool vel_cntrl_enabled;
+    float m_Ts;
+    ControlState m_state;
     void sendSignal();
-    float est_angle();
-    IO_handler *m_io;
 };
