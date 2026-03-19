@@ -1,11 +1,8 @@
 #pragma once
-/* class IO_handler
-Tasks for students:
-    - scale ios correctly
-    - define derivative filter correctly
-*/
+
 #include <cstdint>
 
+#include "DebounceIn.h"
 #include "Encoder.h"
 #include "IIR_filter.h"
 #include "LinearCharacteristics.h"
@@ -14,12 +11,14 @@ Tasks for students:
 class IO_handler
 {
 public:
-    IO_handler(float Ts);               // default constructor
-    virtual ~IO_handler();              // deconstructor
+    IO_handler(float Ts);  // default constructor
+    virtual ~IO_handler(); // deconstructor
+
     void read_sensors_calc_speed(void); // read both encoders and calculate speeds
-    float get_phi_fw(void);             // get angle of motor k
-    float get_phi_bd(void);             // get angle of motor k
-    float get_vphi_fw(void);            // get speed of motor k
+
+    float get_phi_fw(void);     // get angle of motor k
+    float get_phi_bd(void);     // get angle of motor k
+    float get_phi_fw_vel(void); // get speed of motor k
     float get_ax(void);
     float get_ay(void);
     float get_gz(void);
@@ -29,25 +28,21 @@ public:
     bool get_key_state(void);
 
 private:
-    ///------------- Encoder -----------------------
-    Encoder counter; // initialize counter on PA_8 and PA_9
-    AnalogOut i_des;        // desired current values
-    DigitalOut i_enable;
-    InterruptIn button;
-    //-------------------------------------
-    SPI spi; // mosi, miso, sclk
-    mpu6500_spi imu;
-    LinearCharacteristics i2u;
-    LinearCharacteristics ax2ax, ay2ay, gz2gz; // map imu raw values to m/s^2 and rad/s
-    Timer t_but; // define button time        //
+    Encoder m_encoder; // initialize encoder on PA_8 and PA_9
+    AnalogOut m_a_out; // desired current values
+    DigitalOut m_d_out;
+    DebounceIn m_button;
+    SPI m_spi; // mosi, miso, sclk
+    mpu6500_spi m_imu;
+    LinearCharacteristics m_lc_i2u;
+    LinearCharacteristics m_lc_ax2ax, m_lc_ay2ay, m_lc_gz2gz; // map imu raw values to m/s^2 and rad/s
     // sensor states
-    float phi_fw, phi_bd;   // motor angle /rad
-    float Vphi_fw;          // motor speed / rad / s
-    float accx, accy, gyrz; // accelerations and gyroscope
+    float m_phi_fw, m_phi_bd; // motor angle /rad
+    float m_phi_fw_vel;       // motor speed / rad / s
+    float m_ax, m_ay, m_gz;   // accelerations and gyroscope
     void but_pressed(void);
-    void but_released(void);
-    bool key_was_pressed;
-    IIR_filter fil_ax, fil_ay, fil_gz;
-    IIR_filter diff;
+    bool m_button_was_pressed;
+    IIR_filter m_fil_ax, m_fil_ay, m_fil_gz;
+    IIR_filter m_fil_diff;
     /*  Aufgabe 3.1   */
 };

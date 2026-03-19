@@ -1,84 +1,81 @@
 #include "IO_handler.h"
 
-#define PI 3.1415927
-// constructors
+#ifndef M_PIf
+#define M_PIf 3.14159265358979323846f // pi
+#endif
 
+// constructors
 IO_handler::IO_handler(float Ts)
-    : counter(PA_8, PA_9, 4 * 2048)
-    , i_des(PA_4)
-    , i_enable(PB_1)
-    , button(PA_10)
-    , spi(PA_12, PA_11, PA_1)
-    , imu(spi, PB_0)
+    : m_encoder(PA_8, PA_9, 4 * 2048)
+    , m_a_out(PA_4)
+    , m_d_out(PB_1)
+    , m_button(PA_10)
+    , m_spi(PA_12, PA_11, PA_1)
+    , m_imu(m_spi, PB_0)
 {
-    button.fall(callback(this, &IO_handler::but_pressed));  // attach key pressed function
-    button.rise(callback(this, &IO_handler::but_released)); // attach key pressed function
-    key_was_pressed = false;
-    i_enable = 0;
-    counter.reset(); // encoder reset
-    imu.init_inav();
-    imu.configuration();
+    m_button.fall(callback(this, &IO_handler::but_pressed)); // attach debounced key press function
+    m_button_was_pressed = false;
+
+    m_d_out = 0;
+    m_encoder.reset(); // encoder reset
+
+    m_imu.init_inav();
+    m_imu.configuration();
+
     /* *** AUFGABEN *** :
     1.1, 1.2, 1.3    */
-    ax2ax = LinearCharacteristics(-16400, 16580, -9.81, 9.81);
-    ay2ay = LinearCharacteristics(-17120, 15700, -9.81, 9.81);
-    gz2gz = LinearCharacteristics(-32767, 32768, -1000 * PI / 180, 1000 * PI / 180);
-    i2u = LinearCharacteristics(-15, 15, 0, 1);
+    m_lc_ax2ax = LinearCharacteristics(-16400.0f, 16580.0f, -9.81f, 9.81f);
+    m_lc_ay2ay = LinearCharacteristics(-17120.0f, 15700.0f, -9.81f, 9.81f);
+    m_lc_gz2gz = LinearCharacteristics(-32767.0f, 32768.0f, -1000.0f * M_PIf / 180.0f, 1000.0f * M_PIf / 180.0f);
+    m_lc_i2u = LinearCharacteristics(-15.0f, 15.0f, 0.0f, 1.0f);
+
     /*  Aufgabe 3.1 Parametrieren  der Filter */
-    float tau = 1;
-    fil_ax = IIR_filter(tau, Ts, 1);
-    fil_ay = IIR_filter(tau, Ts, 1);
-    fil_gz = IIR_filter(tau, Ts, tau);
+    float tau = 1.0f;
+    m_fil_ax = IIR_filter(tau, Ts, 1.0f);
+    m_fil_ay = IIR_filter(tau, Ts, 1.0f);
+    m_fil_gz = IIR_filter(tau, Ts, tau);
+
     // differentiator filter
-    diff = IIR_filter(1, Ts);
+    m_fil_diff = IIR_filter(1.0f, Ts);
 }
-// Deconstructor
+
 IO_handler::~IO_handler() {}
 
 void IO_handler::read_sensors_calc_speed(void)
 {
-    phi_fw = counter.getAngleRad();
-    Vphi_fw = diff(phi_fw); //
+    m_phi_fw = m_encoder.getAngleRad();
+    m_phi_fw_vel = m_fil_diff(m_phi_fw);
 
-    //-------------- read imu ------------
-    accx = ax2ax(imu.readAcc_raw(1));
-    accy = ay2ay(-imu.readAcc_raw(0));
-    gyrz = gz2gz(imu.readGyro_raw(2));
-    // ------------- calculate phy_bd ----
-    phi_bd = -PI / 4 + atan2(fil_ax(accx), fil_ay(accy)) + fil_gz(gyrz);
+    m_ax = m_lc_ax2ax(m_imu.readAcc_raw(1));
+    m_ay = m_lc_ay2ay(-m_imu.readAcc_raw(0));
+    m_gz = m_lc_gz2gz(m_imu.readGyro_raw(2));
+
+    m_phi_bd = -M_PIf / 4.0f + atan2f(m_fil_ax(m_ax), m_fil_ay(m_ay)) + m_fil_gz(m_gz);
 }
 
-void IO_handler::enable_escon(void) { i_enable = 1; }
-void IO_handler::disable_escon(void) { i_enable = 0; }
+float IO_handler::get_phi_fw(void) { return m_phi_fw; }
 
-void IO_handler::write_current(float _i_des) { i_des = i2u(_i_des); }
+float IO_handler::get_phi_bd(void) { return m_phi_bd; }
 
-float IO_handler::get_phi_bd(void) { return phi_bd; }
-float IO_handler::get_phi_fw(void) { return phi_fw; }
-float IO_handler::get_vphi_fw(void) { return Vphi_fw; }
-float IO_handler::get_ax(void) { return accx; }
-float IO_handler::get_ay(void) { return accy; }
-float IO_handler::get_gz(void) { return gyrz; }
-// start timer as soon as Button is pressed
-void IO_handler::but_pressed()
-{
-    t_but.start();
-    key_was_pressed = false;
-}
+float IO_handler::get_phi_fw_vel(void) { return m_phi_fw_vel; }
 
-// evaluating statemachine
-void IO_handler::but_released()
-{
-    // readout, stop and reset timer
-    float ButtonTime = t_but.read();
-    t_but.stop();
-    t_but.reset();
-    if (ButtonTime > 0.05f && ButtonTime < 0.5)
-        key_was_pressed = true;
-}
+float IO_handler::get_ax(void) { return m_ax; }
+
+float IO_handler::get_ay(void) { return m_ay; }
+
+float IO_handler::get_gz(void) { return m_gz; }
+
+void IO_handler::write_current(float i_des) { m_a_out = m_lc_i2u(i_des); }
+
+void IO_handler::enable_escon(void) { m_d_out = 1; }
+
+void IO_handler::disable_escon(void) { m_d_out = 0; }
+
 bool IO_handler::get_key_state(void)
 {
-    bool temp = key_was_pressed;
-    key_was_pressed = false;
-    return temp;
+    bool button_was_pressed = m_button_was_pressed;
+    m_button_was_pressed = false;
+    return button_was_pressed;
 }
+
+void IO_handler::but_pressed() { m_button_was_pressed = true; }

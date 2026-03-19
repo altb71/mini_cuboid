@@ -43,6 +43,6 @@ int main()
         // printf("ax: %f ay: %f gz: %f\r\n",hardware.get_ax(),hardware.get_ay(),hardware.get_gz());
         //  Aufgabe 2.4
         // printf("phi_bd: %f \r\n",hardware.get_phi_bd());
-        printf("v_fw: %f \r\n", hardware.get_vphi_fw());
+        printf("v_fw: %f \r\n", hardware.get_phi_fw_vel());
     }
 } // END OF main

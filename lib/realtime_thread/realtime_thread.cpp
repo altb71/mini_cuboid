@@ -34,13 +34,13 @@ void realtime_thread::loop(void)
         if (bal_cntrl_enabled) {
             /* Aufgabe 5.1 */
             // M_mot = -(K2[0] * m_io->get_phi_bd() + K2[1] * m_io->get_gz());
-            M_mot = -(K4[0] * m_io->get_phi_bd() + K4[1] * m_io->get_gz() + K4[2] * m_io->get_vphi_fw() +
-                      K4[3] * I_reg(0 - m_io->get_vphi_fw()));
+            M_mot = -(K4[0] * m_io->get_phi_bd() + K4[1] * m_io->get_gz() + K4[2] * m_io->get_phi_fw_vel() +
+                      K4[3] * I_reg(0 - m_io->get_phi_fw_vel()));
 
             m_io->write_current(M_mot / km);
 
         } else if (vel_cntrl_enabled) {
-            float i_des = kp * (0 - m_io->get_vphi_fw());
+            float i_des = kp * (0 - m_io->get_phi_fw_vel());
             m_io->write_current(i_des);
 
         } else {
