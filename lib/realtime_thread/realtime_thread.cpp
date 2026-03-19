@@ -1,6 +1,16 @@
 #include "realtime_thread.h"
 
-using namespace std;
+#include <chrono>
+#include <cstdint>
+
+#include "DataLogger.h"
+#include "GPA.h"
+
+extern DataLogger myDataLogger;
+extern GPA myGPA;
+
+using namespace Eigen;
+using namespace std::chrono;
 
 // contructor for realtime_thread loop
 realtime_thread::realtime_thread(IO_handler *io_handler, float Ts)
@@ -28,6 +38,7 @@ void realtime_thread::loop(void)
     float km = 36.9e-3;
     float kp = 0.3;
     float time;
+    float time_previous = 0.0f;
 
     while (1) {
         ThisThread::flags_wait_any(m_ThreadFlag);
@@ -38,9 +49,9 @@ void realtime_thread::loop(void)
 
         float i_des = 0.0f;
         bool do_transition = false;
-        if (m_IO_handler->get_key_state() && (time > 0.5f)) {
+        if (m_IO_handler->get_key_state() && (time - time_previous > 0.5f)) {
             do_transition = true;
-            m_Timer.reset();
+            time_previous = time;
         }
 
         switch (m_state) {
@@ -77,6 +88,10 @@ void realtime_thread::loop(void)
                 break;
         }
         m_IO_handler->write_current(i_des);
+
+        float u = myDataLogger.get_set_value(time); // get set values from the GUI
+        myDataLogger.write_to_log(
+            time, u, m_IO_handler->get_ax(), m_IO_handler->get_ay(), m_IO_handler->get_gz(), 0.0f, 0.0f);
     }
 }
 

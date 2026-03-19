@@ -4,7 +4,6 @@
 
 #include "EncoderCounter.h"
 #include "IO_handler.h"
-#include "LinearCharacteristics.h"
 #include "PID_Cntrl.h"
 #include "ThreadFlag.h"
 #include "mbed.h"

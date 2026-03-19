@@ -1,44 +1,42 @@
-#include <stdint.h>
-
-#include "IIR_filter.h"
+#include "DataLogger.h"
+#include "GPA.h"
 #include "IO_handler.h"
-#include "math.h"
 #include "mbed.h"
 #include "realtime_thread.h"
+#include "uart_comm_thread_receive.h"
+#include "uart_comm_thread_send.h"
 
-#define WAIT_MS(x) ThisThread::sleep_for(chrono::milliseconds(x));
+// TODO:
+// - Check imu settings
+// - Change app names and prints and defaults
 
-static BufferedSerial serial_port(USBTX, USBRX, 115200);
+// IMPORTANT:
+// - Do NOT set the BufferedSerial to non-blocking mode, as this will break proper communication!
 
-/*
-This is the main function of embedded project "mini_cuboid" ZHAW FS25
-Altenburger March 2025
-*/
-
-//******************************************************************************
-//---------- main loop -------------
-//******************************************************************************
+float Ts = 1.0f / 500.0f;
+GPA myGPA(1.0f, 245.0f, 30, 0.1f, 0.2f, Ts); // setup here does not affect the actual used parameters, they are set via
+                                             // the UART communication via MATLAB
+DataLogger myDataLogger(1);
 
 int main()
 {
+    // Input/Output handling
+    IO_handler io_handler(Ts);
 
-    // --------- mini cuboid,
-    float Ts = 0.001f;                        // sampling time
-    IO_handler hardware(Ts);                  // in this class all the physical ios are handled
-    realtime_thread rt_thread(&hardware, Ts); // this is for the main controller loop
-    WAIT_MS(200);
-    printf("- - - - MiniCuboid Start! - - - \r\n");
-    // IIR_filter fil(0.1,0.01,1);
-    // for(int k=0;k<60;k++)
-    //     printf("%f\r\n",fil(1));
+    // Communication
+    BufferedSerial uart_serial(USBTX, USBRX, 115200);                     // leave this blocking!
+    uart_comm_thread_send uart_com_send(&io_handler, &uart_serial, .01f); // send communication thread
+    uart_comm_thread_receive uart_com_receive(&uart_serial, .01f);        // receive communication thread
 
-    // ----------------------------------
+    // Real-Time Thread
+    realtime_thread rt_thread(&io_handler, Ts);
+
+    // Start the three threads
+    uart_com_receive.start_uart();
+    uart_com_send.start_uart();
     rt_thread.start_loop();
-    while (1) {
-        WAIT_MS(500);
-        // printf("ax: %f ay: %f gz: %f\r\n",hardware.get_ax(),hardware.get_ay(),hardware.get_gz());
-        //  Aufgabe 2.4
-        // printf("phi_bd: %f \r\n",hardware.get_phi_bd());
-        printf("v_fw: %f \r\n", hardware.get_phi_fw_vel());
+
+    while (true) {
+        ThisThread::sleep_for(500ms);
     }
-} // END OF main
+}
