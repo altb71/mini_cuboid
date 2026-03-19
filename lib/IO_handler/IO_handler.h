@@ -6,9 +6,7 @@ Tasks for students:
 */
 #include <cstdint>
 
-#include "Enc_unwrap_scale.h"
-#include "EncoderCounter.h"
-#include "EncoderCounterIndex.h"
+#include "Encoder.h"
 #include "IIR_filter.h"
 #include "LinearCharacteristics.h"
 #include "mpu6500_spi.h"
@@ -32,16 +30,15 @@ public:
 
 private:
     ///------------- Encoder -----------------------
-    EncoderCounter counter; // initialize counter on PA_6 and PC_7
+    Encoder counter; // initialize counter on PA_8 and PA_9
     AnalogOut i_des;        // desired current values
     DigitalOut i_enable;
     InterruptIn button;
-    mpu6500_spi imu;
     //-------------------------------------
     SPI spi; // mosi, miso, sclk
+    mpu6500_spi imu;
     LinearCharacteristics i2u;
     LinearCharacteristics ax2ax, ay2ay, gz2gz; // map imu raw values to m/s^2 and rad/s
-    Enc_unwrap_scale uw;
     Timer t_but; // define button time        //
     // sensor states
     float phi_fw, phi_bd;   // motor angle /rad

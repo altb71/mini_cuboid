@@ -4,11 +4,10 @@
 // constructors
 
 IO_handler::IO_handler(float Ts)
-    : counter(PA_8, PA_9)
+    : counter(PA_8, PA_9, 4 * 2048)
+    , i_des(PA_4)
     , i_enable(PB_1)
     , button(PA_10)
-    , i_des(PA_4)
-    , uw(4 * 2048, 16)
     , spi(PA_12, PA_11, PA_1)
     , imu(spi, PB_0)
 {
@@ -38,7 +37,7 @@ IO_handler::~IO_handler() {}
 
 void IO_handler::read_sensors_calc_speed(void)
 {
-    phi_fw = uw(counter);
+    phi_fw = counter.getAngleRad();
     Vphi_fw = diff(phi_fw); //
 
     //-------------- read imu ------------
