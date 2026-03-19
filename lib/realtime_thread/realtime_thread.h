@@ -1,5 +1,7 @@
 #pragma once
 
+#include <Eigen/Dense>
+
 #include "EncoderCounter.h"
 #include "IO_handler.h"
 #include "LinearCharacteristics.h"

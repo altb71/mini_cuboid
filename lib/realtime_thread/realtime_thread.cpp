@@ -21,8 +21,12 @@ realtime_thread::~realtime_thread() {}
 
 void realtime_thread::loop(void)
 {
-    // float K2[2] = {-0.9602, -0.0611};
-    float K4[4] = {-1.7131, -0.1553, -0.0029, 0.0023};
+    Eigen::Matrix<float, 1, 2> K2;
+    K2 << -0.9602, -0.0611;
+    Eigen::Matrix<float, 2, 1> x;
+    Eigen::Matrix<float, 1, 4> K4;
+    K4 << -1.7131, -0.1553, -0.0029, 0.0023;
+    Eigen::Matrix<float, 4, 1> x_bar;
     float M_mot;
     float km = 36.9e-3;
     float kp = 0.5;
@@ -33,9 +37,11 @@ void realtime_thread::loop(void)
         m_io->read_sensors_calc_speed(); // first read all sensors, calculate motor speed and angle of body
         if (bal_cntrl_enabled) {
             /* Aufgabe 5.1 */
-            // M_mot = -(K2[0] * m_io->get_phi_bd() + K2[1] * m_io->get_gz());
-            M_mot = -(K4[0] * m_io->get_phi_bd() + K4[1] * m_io->get_gz() + K4[2] * m_io->get_phi_fw_vel() +
-                      K4[3] * I_reg(0 - m_io->get_phi_fw_vel()));
+            // x << m_io->get_phi_bd(), m_io->get_gz();
+            // M_mot = -K2 * x;
+
+            x_bar << m_io->get_phi_bd(), m_io->get_gz(), m_io->get_phi_fw_vel(), I_reg(0 - m_io->get_phi_fw_vel());
+            M_mot = -K4 * x_bar;
 
             m_io->write_current(M_mot / km);
 
