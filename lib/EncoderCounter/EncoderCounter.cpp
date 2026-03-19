@@ -5,11 +5,10 @@
  *
  *  Created on: 26.01.2018
  *      Author: Marcel Honegger
+ *      Minor adjustments: Michael Peter
  */
 
 #include "EncoderCounter.h"
-
-using namespace std;
 
 /**
  * Creates and initializes the driver to read the quadrature
@@ -18,15 +17,22 @@ using namespace std;
  * @param b the input pin for the channel B.
  */
 EncoderCounter::EncoderCounter(PinName a, PinName b)
+    : TIM(nullptr)
 {
+    // Enter critical section to avoid races while reconfiguring GPIO/TIM
+    core_util_critical_section_enter();
 
     // check pins
-
     if ((a == PA_8) && (b == PA_9)) {
 
         // pinmap OK for TIM1 CH1 and CH2
-
         TIM = TIM1;
+
+        // configure reset and clock control registers
+        __HAL_RCC_GPIOA_CLK_ENABLE();
+        __HAL_RCC_TIM1_CLK_ENABLE();
+        (void)RCC->AHB2ENR; // dummy read forces clock enable to latch
+        (void)RCC->APB2ENR; // ensures registers are accessible before configuration
 
         // configure general purpose I/O registers
 
@@ -34,27 +40,28 @@ EncoderCounter::EncoderCounter(PinName a, PinName b)
         GPIOA->MODER |= GPIO_MODER_MODER8_1; // set alternate mode of port A8
         GPIOA->PUPDR &= ~GPIO_PUPDR_PUPDR8;  // reset pull-up/pull-down on port A8
         GPIOA->PUPDR |= GPIO_PUPDR_PUPDR8_1; // set input as pull-down
-        GPIOA->AFR[1] &= ~(0xF << 4 * 0);    // reset alternate function of port A8
-        GPIOA->AFR[1] |= 1 << 4 * 0;         // set alternate funtion 1 of port A8
+        GPIOA->AFR[1] &= ~(0xF << (4 * 0));  // reset alternate function of port A8
+        GPIOA->AFR[1] |= (1 << (4 * 0));     // set alternate function 1 of port A8
 
         GPIOA->MODER &= ~GPIO_MODER_MODER9;  // reset port A9
         GPIOA->MODER |= GPIO_MODER_MODER9_1; // set alternate mode of port A9
         GPIOA->PUPDR &= ~GPIO_PUPDR_PUPDR9;  // reset pull-up/pull-down on port A9
         GPIOA->PUPDR |= GPIO_PUPDR_PUPDR9_1; // set input as pull-down
-        GPIOA->AFR[1] &= ~(0xF << 4 * 1);    // reset alternate function of port A9
-        GPIOA->AFR[1] |= 1 << 4 * 1;         // set alternate funtion 1 of port A9
+        GPIOA->AFR[1] &= ~(0xF << (4 * 1));  // reset alternate function of port A9
+        GPIOA->AFR[1] |= (1 << (4 * 1));     // set alternate function 1 of port A9
 
-        // configure reset and clock control registers
-
-        RCC->APB2RSTR |= RCC_APB2RSTR_TIM1RST; // reset TIM1 controller
+        // reset TIM1 controller
+        RCC->APB2RSTR |= RCC_APB2RSTR_TIM1RST;
         RCC->APB2RSTR &= ~RCC_APB2RSTR_TIM1RST;
 
-        RCC->APB2ENR |= RCC_APB2ENR_TIM1EN; // TIM1 clock enable
-
     } else {
-
-        printf("pinmap not found for peripheral\n");
+        // Unsupported pin combination: leave critical section and abort
+        core_util_critical_section_exit();
+        MBED_ERROR(MBED_MAKE_ERROR(MBED_MODULE_APPLICATION, MBED_ERROR_CODE_INVALID_ARGUMENT),
+                   "EncoderCounter pinmap not found");
     }
+
+    MBED_ASSERT(TIM != nullptr);
 
     // configure general purpose timer 1
 
@@ -67,6 +74,8 @@ EncoderCounter::EncoderCounter(PinName a, PinName b)
     TIM->CNT = 0x0000;      // reset counter value
     TIM->ARR = 0xFFFF;      // auto reload register
     TIM->CR1 = TIM_CR1_CEN; // counter enable
+
+    core_util_critical_section_exit();
 }
 
 EncoderCounter::~EncoderCounter() {}
@@ -89,6 +98,6 @@ void EncoderCounter::reset(int16_t offset) { TIM->CNT = -offset; }
 int16_t EncoderCounter::read() { return static_cast<int16_t>(-TIM->CNT); }
 
 /**
- * The empty operator is a shorthand notation of the <code>read()</code> method.
+ * The empty operator is a shorthand notation of the read() method.
  */
 EncoderCounter::operator int16_t() { return read(); }

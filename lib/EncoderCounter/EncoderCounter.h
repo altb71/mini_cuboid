@@ -5,14 +5,16 @@
  *
  *  Created on: 26.01.2018
  *      Author: Marcel Honegger
+ *      Minor adjustments: Michael Peter
  */
 
 #ifndef ENCODER_COUNTER_H_
 #define ENCODER_COUNTER_H_
 
 #include <cstdlib>
-#include <mbed.h>
 #include <stdint.h>
+
+#include "mbed.h"
 
 /**
  * This class implements a driver to read the quadrature
@@ -22,8 +24,9 @@ class EncoderCounter
 {
 
 public:
-    EncoderCounter(PinName a, PinName b);
+    explicit EncoderCounter(PinName a, PinName b);
     virtual ~EncoderCounter();
+
     void reset();
     void reset(int16_t offset);
     int16_t read();
