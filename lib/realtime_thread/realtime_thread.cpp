@@ -21,7 +21,7 @@ realtime_thread::~realtime_thread() {}
 
 void realtime_thread::loop(void)
 {
-    float K2[2] = {-0.9602, -0.0611};
+    // float K2[2] = {-0.9602, -0.0611};
     float K4[4] = {-1.7131, -0.1553, -0.0029, 0.0023};
     float M_mot;
     float km = 36.9e-3;
@@ -53,7 +53,7 @@ void realtime_thread::sendSignal() { thread.flags_set(threadFlag); }
 void realtime_thread::start_loop(void)
 {
     thread.start(callback(this, &realtime_thread::loop));
-    ticker.attach(callback(this, &realtime_thread::sendSignal), Ts);
+    ticker.attach(callback(this, &realtime_thread::sendSignal), microseconds{static_cast<int64_t>(Ts * 1e6f)});
 }
 
 /* est_angle: estimate angle from acc and gyro data. This function would also fit to the "sensors_actuators"- class

@@ -13,7 +13,6 @@ mpu6500_spi::mpu6500_spi(SPI &_spi, PinName _cs)
 
 bool mpu6500_spi::init_inav()
 {
-    unsigned int response;
     spi.format(8, 0);
     spi.frequency(1000000);
 
@@ -94,12 +93,10 @@ bool mpu6500_spi::testConnection()
 
 int mpu6500_spi::enableInterrupt()
 {
-    unsigned int response;
-
     // ENABLE INTERRUPTS
     select();
-    response = spi.write(MPUREG_INT_ENABLE);
-    response = spi.write(0x01);
+    spi.write(MPUREG_INT_ENABLE);
+    spi.write(0x01);
     deselect();
     return 0;
 }
@@ -229,7 +226,6 @@ int16_t mpu6500_spi::readAcc_raw(int axis)
 {
     uint8_t responseH, responseL;
     int16_t bit_data;
-    float data;
     select();
     switch (axis) {
         case 0:
@@ -329,7 +325,6 @@ float mpu6500_spi::readGyro_raw(int axis)
 {
     uint8_t responseH, responseL;
     int16_t bit_data;
-    float data;
     select();
     switch (axis) {
         case 0:
@@ -353,7 +348,6 @@ void mpu6500_spi::readGyro(void)
 {
     uint8_t responseHx, responseLx, responseHy, responseLy, responseHz, responseLz;
     int16_t bit_data;
-    float data;
     select();
     responseHx = spi.write(MPUREG_GYRO_XOUT_H | READ_FLAG);
     responseHx = spi.write(0x00);
@@ -375,7 +369,6 @@ int16_t mpu6500_spi::read_temp()
 {
     uint8_t responseH, responseL;
     int16_t bit_data;
-    float data;
     select();
     responseH = spi.write(MPUREG_TEMP_OUT_H | READ_FLAG);
     responseH = spi.write(0x00);
@@ -391,6 +384,7 @@ int16_t mpu6500_spi::read_temp()
 int mpu6500_spi::calib_acc(int axis)
 {
     uint8_t responseH, responseL, calib_data;
+    calib_data = 0;
     int temp_scale;
     // READ CURRENT ACC SCALE
     select();
@@ -450,9 +444,8 @@ void mpu6500_spi::deselect()
 
 void mpu6500_spi::write2spi(uint8_t reg, uint8_t val)
 {
-    unsigned int response;
     select();
-    response = spi.write(reg);
-    response = spi.write(val);
+    spi.write(reg);
+    spi.write(val);
     deselect();
 }
