@@ -1,78 +1,48 @@
 #include <stdint.h>
-#include <chrono>
 
-#include "realtime_thread.h"
-#include "GPA.h"
+#include "IIR_filter.h"
+#include "IO_handler.h"
 #include "math.h"
 #include "mbed.h"
-#include "minicube_parametermap.h"
-#include "IO_handler.h"
+#include "realtime_thread.h"
 #include "state_machine.h"
-using namespace std::chrono_literals;
+
+#define WAIT_MS(x) ThisThread::sleep_for(chrono::milliseconds(x));
+
+static BufferedSerial serial_port(USBTX, USBRX, 115200);
+
 /*
-software (running) for "Nacht der Technik" July 2022. Concept
-    - 2 types of controllers running in realtime_thread.cpp at 500Hz
-        * balance controller at unstable position on edge
-        * PI-controller to keep disc speed at 0, when lying on edge
-    - controllers are enabled/disabled in state_machine.cpp
-    - main things are performed in state_machine.cpp
-    - each cuboid has the same software!
-    - individual cuboids are identified by their ID number (see lines below in main.cpp)
-    - choreography is read in choreography.h
-    - choreography.h is created with Matlab: generateChoreography.m
+This is the main function of embedded project "mini_cuboid" ZHAW FS25
+Altenburger March 2025
 */
 
-// Mini-cuboid for lab, see Matlab-code at end of this file
-static BufferedSerial serial_port(USBTX, USBRX);
-float Ts = 0.002f;                // sampling time, typically approx 1/500
-GPA myGPA(.7, 250, 30, 4, 4, Ts); // para for plant identification (currently not used)
 //******************************************************************************
 //---------- main loop -------------
 //******************************************************************************
+
 int main()
 {
-    IO_handler hardware(Ts);     // in this class all the physical ios are handled
-    realtime_thread loop(&hardware, Ts); // this is for the main controller loop
-    state_machine sm(&hardware, &loop, 0.02);
-    ThisThread::sleep_for(200ms);
-    uint32_t *uid = (uint32_t *)0x1FFF7590;
-    //    printf("\r\nUnique ID: %08X %08X %08X \r\n", uid[0], uid[1], uid[2]);
-    printf("\r\nUnique ID: %08lX %08lX \r\n", static_cast<unsigned long>(uid[1]), static_cast<unsigned long>(uid[0]));
+
+    // --------- mini cuboid,
+    float Ts = 0.002f;                        // sampling time, typically approx 1/500
+    IO_handler hardware(Ts);                  // in this class all the physical ios are handled
+    realtime_thread rt_thread(&hardware, Ts); // this is for the main controller loop
+    state_machine sm(&hardware, &rt_thread, 0.02);
+    WAIT_MS(200);
+    printf("- - - - MiniCuboid Start! - - - \r\n");
+    // IIR_filter fil(0.1,0.01,1);
+    // for(int k=0;k<60;k++)
+    //     printf("%f\r\n",fil(1));
+
     // ----------------------------------
-    ThisThread::sleep_for(20ms);
-    loop.start_loop();
-    ThisThread::sleep_for(20ms);
+    rt_thread.start_loop();
+    WAIT_MS(20);
     sm.start_loop();
-    while (1)
-        ThisThread::sleep_for(200ms);
+    while (1) {
+        WAIT_MS(500);
+        // printf("ax: %f ay: %f gz: %f\r\n",hardware.get_ax(),hardware.get_ay(),hardware.get_gz());
+        //  Aufgabe 2.4
+        // printf("phi_bd: %f \r\n",hardware.get_phi_bd());
+        printf("v_fw: %f \r\n", hardware.get_vphi_fw());
+    }
 } // END OF main
-/*      MATLAB CODE for controller design
-m = 0.816;
-J_geh=7.66E-4;
-J_rot = 2.81E-4;
-R = 0.066;
-km = 36.9E-3;
-g=9.81;
-J = J_geh + m*R^2;
-%% Zustandsregler
-A=[0 1;m*g*R/J 0];
-B=[0;-1/J];
-K=place(A,B,10*[-1+1j -1-1j])
-%% Erweiterung auf System 3ter Ordnung
-A3_ = [A zeros(2,1);zeros(1,3)];
-B3_ = [B;1/J_rot];
-C3_ = [1 0 0;0 1 0;0 -1 1];
-s3_ = ss(A3_,B3_,C3_,0);
-s3 = ss2ss(s3_,C3_);
-%% Erweiterung auf 4ter Ordnung
-A4 = [s3.a zeros(3,1);-[0 0 1] 0];
-B4 = [s3.b;0];
-K4 = place(A4,B4,10*[-1+1j -1-1j -1.5 -.1])
-%% Scheibendrehzahl regeln
-G_sb=tf(1/km*6.26E7,[1 2250 500000 0]);
-Tn = .02;
-kp=db2mag(-30);
-PI=tf([Tn 1],[Tn 0]);
-bode(kp*PI*G_sb);grid on
-pid(kp*PI)
-*/

@@ -1,12 +1,11 @@
 #pragma once
 
 #include "EncoderCounter.h"
-#include "IIR_filter.h"
+#include "IO_handler.h"
 #include "LinearCharacteristics.h"
 #include "PID_Cntrl.h"
 #include "ThreadFlag.h"
 #include "mbed.h"
-#include "IO_handler.h"
 
 // This is the loop class, it is not a controller at first hand, it guarantees a cyclic call
 class realtime_thread
@@ -19,7 +18,6 @@ public:
     void enable_bal_cntrl(void);
     void reset_cntrl(void);
     void disable_all_cntrl();
-    float phi_bd_des;
 
 private:
     void loop(void);
@@ -28,13 +26,12 @@ private:
     ThreadFlag threadFlag;
     Timer ti;
     PID_Cntrl flat_vel_cntrl;
-    PID_Cntrl I_cntrl;
+    PID_Cntrl bal_vel_cntrl;
+    PID_Cntrl I_reg;
     float Ts;
-    float km = 36.9E-3; // Motor constant Nm/Amp
     bool bal_cntrl_enabled;
     bool vel_cntrl_enabled;
     void sendSignal();
     float est_angle();
-    IO_handler *m_sa;
-    float saturate(float, float, float);
+    IO_handler *m_io;
 };

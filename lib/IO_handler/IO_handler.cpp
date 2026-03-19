@@ -1,36 +1,17 @@
 #include "IO_handler.h"
-#include <chrono>
 
 #define PI 3.1415927
 // constructors
 
 IO_handler::IO_handler(float Ts)
-    : di(2 * Ts, Ts)
-    , counter(PA_8, PA_9)
-    , i_des(PA_4)
+    : counter(PA_8, PA_9)
     , i_enable(PB_1)
     , button(PA_10)
+    , i_des(PA_4)
+    , uw(4 * 2048, 16)
     , spi(PA_12, PA_11, PA_1)
     , imu(spi, PB_0)
-    , uw(4 * 2048, 16)
 {
-    i2u.setup(-15, 15, 0.0f, 1.0f);
-    ax2ax.setup(0, 1, 0, 1); // use these for first time, adapt values according
-    ay2ay.setup(0, 1, 0, 1); //              "
-
-    // ax2ax.setup(MINICUBE.imu_acc_x_m1g,MINICUBE.imu_acc_x_p1g,-9.81,9.81);
-    // ay2ay.setup(MINICUBE.imu_acc_y_m1g,MINICUBE.imu_acc_y_p1g,-9.81,9.81);
-    gz2gz.setup(-32767, 32768, -1000 * PI / 180, 1000 * PI / 180); // check offset (value at standstill)
-                                                                   // --------------------------------------------------
-    float tau = 1.0;
-    fil_ax.setup(tau, Ts, 1.0);
-    fil_ay.setup(tau, Ts, 1.0);
-    fil_gz.setup(tau, Ts, tau);
-    fil_ax.reset(ax2ax(imu.readAcc_raw(1)));
-    fil_ay.reset(ay2ay(-imu.readAcc_raw(0)));
-    dif_ax.setup(.05, Ts);
-    dif_ay.setup(.05, Ts);
-    // --------------------------------------------------
     button.fall(callback(this, &IO_handler::but_pressed));  // attach key pressed function
     button.rise(callback(this, &IO_handler::but_released)); // attach key pressed function
     key_was_pressed = false;
@@ -38,7 +19,19 @@ IO_handler::IO_handler(float Ts)
     counter.reset(); // encoder reset
     imu.init_inav();
     imu.configuration();
-    global_enable = true;
+    /* *** AUFGABEN *** :
+    1.1, 1.2, 1.3    */
+    ax2ax = LinearCharacteristics(-16400, 16580, -9.81, 9.81);
+    ay2ay = LinearCharacteristics(-17120, 15700, -9.81, 9.81);
+    gz2gz = LinearCharacteristics(-32767, 32768, -1000 * PI / 180, 1000 * PI / 180);
+    i2u = LinearCharacteristics(-15, 15, 0, 1);
+    /*  Aufgabe 3.1 Parametrieren  der Filter */
+    float tau = 1;
+    fil_ax = IIR_filter(tau, Ts, 1);
+    fil_ay = IIR_filter(tau, Ts, 1);
+    fil_gz = IIR_filter(tau, Ts, tau);
+    // differentiator filter
+    diff = IIR_filter(1, Ts);
 }
 // Deconstructor
 IO_handler::~IO_handler() {}
@@ -46,40 +39,23 @@ IO_handler::~IO_handler() {}
 void IO_handler::read_sensors_calc_speed(void)
 {
     phi_fw = uw(counter);
-    Vphi_fw = di(phi_fw);
-    if (fabs(Vphi_fw) > MAX_FW_SPEED) {
-        if (global_enable)
-            printf(" - - - - DISABLE  - - -\r\n");
-        global_enable = false;
-        disable_escon();
-    }
+    Vphi_fw = diff(phi_fw); //
+
     //-------------- read imu ------------
-    float dum = ax2ax(imu.readAcc_raw(1));
-    accx = fil_ax(dum);
-    ax_fil = dif_ax(dum);
-    dum = ay2ay(-imu.readAcc_raw(0));
-    accy = fil_ay(dum);
-    ay_fil = dif_ay(dum);
+    accx = ax2ax(imu.readAcc_raw(1));
+    accy = ay2ay(-imu.readAcc_raw(0));
     gyrz = gz2gz(imu.readGyro_raw(2));
-    gyrz_fil = fil_gz(gyrz);
-
-    // ------------------------------------
-    // phi_bd = atan2(accx,accy);
-    phi_bd = uw2pi(atan2(accx, accy) + gyrz_fil - PI / 4);
+    // ------------- calculate phy_bd ----
+    phi_bd = -PI / 4 + atan2(fil_ax(accx), fil_ay(accy)) + fil_gz(gyrz);
 }
 
-void IO_handler::enable_escon(void)
-{
-    i_enable = global_enable; // global_enable can only be set at startup, if FW too fast, global_enable = false, need
-                              // to reset system
-}
+void IO_handler::enable_escon(void) { i_enable = 1; }
 void IO_handler::disable_escon(void) { i_enable = 0; }
 
-void IO_handler::force_curr(float _i_des) { i_des = i2u(_i_des); }
 void IO_handler::write_current(float _i_des) { i_des = i2u(_i_des); }
 
-float IO_handler::get_phi_fw(void) { return phi_fw; }
 float IO_handler::get_phi_bd(void) { return phi_bd; }
+float IO_handler::get_phi_fw(void) { return phi_fw; }
 float IO_handler::get_vphi_fw(void) { return Vphi_fw; }
 float IO_handler::get_ax(void) { return accx; }
 float IO_handler::get_ay(void) { return accy; }
@@ -95,18 +71,15 @@ void IO_handler::but_pressed()
 void IO_handler::but_released()
 {
     // readout, stop and reset timer
-    float ButtonTime = std::chrono::duration<float>{t_but.elapsed_time()}.count();
+    float ButtonTime = t_but.read();
     t_but.stop();
     t_but.reset();
     if (ButtonTime > 0.05f && ButtonTime < 0.5)
         key_was_pressed = true;
 }
-bool IO_handler::get_but()
+bool IO_handler::get_key_state(void)
 {
-    // readout, stop and reset timer
-    if (key_was_pressed) {
-        key_was_pressed = false;
-        return true;
-    } else
-        return false;
+    bool temp = key_was_pressed;
+    key_was_pressed = false;
+    return temp;
 }

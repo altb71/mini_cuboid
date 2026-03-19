@@ -6,48 +6,35 @@ LinearCharacteristics::LinearCharacteristics(float gain, float offset)
 { // standard lin characteristics
     this->gain = gain;
     this->offset = offset;
-    this->ulim = 999999.0;
-    this->llim = -999999.0;
+    this->ulim = 999999.0;  // a large number
+    this->llim = -999999.0; // a large neg. number
 }
-
 LinearCharacteristics::LinearCharacteristics(float xmin, float xmax, float ymin, float ymax)
 { // standard lin characteristics
     this->gain = (ymax - ymin) / (xmax - xmin);
-    this->offset = xmax - ymax / this->gain;
-    this->ulim = 999999.0;
-    this->llim = -999999.0;
-}
-LinearCharacteristics::LinearCharacteristics(float xmin, float xmax, float ymin, float ymax, float ll, float ul)
-{ // standard lin characteristics
-    this->gain = (ymax - ymin) / (xmax - xmin);
-    this->offset = xmax - ymax / this->gain;
-    this->llim = ll;
-    this->ulim = ul;
+    this->offset = xmin - ymin / this->gain;
+    this->ulim = 999999.0;  // a large number
+    this->llim = -999999.0; // a large neg. number
 }
 
 LinearCharacteristics::~LinearCharacteristics() {}
 
 float LinearCharacteristics::evaluate(float x)
 {
-    float dum = this->gain * (x - this->offset);
-    if (dum > this->ulim)
-        dum = this->ulim;
-    if (dum < this->llim)
-        dum = this->llim;
-    return dum;
+    // calculate result as y(x) = gain * (x-offset)
+    float ret_val = gain * (x - offset);
+    if (ret_val > ulim)
+        return ulim;
+    else if (ret_val < llim)
+        return llim;
+    else
+        return ret_val;
+    // oder
+    // (ret_val > ulim) ? return ulim : ((ret_val < llim) ? return llim : return ret_val);
 }
 
-void LinearCharacteristics::setup(float xmin, float xmax, float ymin, float ymax)
-{ // standard lin characteristics
-    this->gain = (ymax - ymin) / (xmax - xmin);
-    this->offset = xmax - ymax / this->gain;
-    this->ulim = 999999.0;
-    this->llim = -999999.0;
-}
-void LinearCharacteristics::setup(float xmin, float xmax, float ymin, float ymax, float ll, float ul)
-{ // standard lin characteristics
-    this->gain = (ymax - ymin) / (xmax - xmin);
-    this->offset = xmax - ymax / this->gain;
+void LinearCharacteristics::set_limits(float ll, float ul)
+{
     this->llim = ll;
     this->ulim = ul;
 }
