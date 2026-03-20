@@ -29,7 +29,6 @@ private:
     Timer m_Timer;
     float m_Ts;
     ControlState m_state;
-    IIR_Filter m_fil_int;
     void sendSignal();
     float saturate(float, float, float);
 };

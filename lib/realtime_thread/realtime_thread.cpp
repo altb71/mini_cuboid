@@ -26,7 +26,6 @@ realtime_thread::realtime_thread(IO_handler *io_handler, float Ts)
     m_IO_handler->disable_escon();
     m_Timer.reset();
     m_Timer.start();
-    m_fil_int.integratorInit(Ts);
 }
 
 // decontructor for controller loop
@@ -38,11 +37,10 @@ void realtime_thread::loop(void)
     float exc = 0.0f;
     const float kp = 0.3f;
 
-    Eigen::Matrix<float, 1, 4> K;
-    // K << -1.7131f, -0.1553f, -0.0029f, 0.0023f * 2.0f;
-    K << -2.1862f, -0.2010f, -0.0042f, 0.0100f;
+    const Eigen::Matrix<float, 1, 4> K(-2.1929f, -0.2016f, -0.0042f, 0.0100f);
     Eigen::Matrix<float, 4, 1> x_bar;
     x_bar.setZero();
+    float xi_kmin1 = 0.0f;
     float M_mot;
     const float km = 36.9e-3;
 
@@ -65,7 +63,7 @@ void realtime_thread::loop(void)
             case INIT: {
                 // ------------------- INIT -------------------
                 // reset system
-                m_fil_int.reset(0.0f);
+                xi_kmin1 = 0.0f;
                 m_IO_handler->disable_escon();
 
                 // switch to FLAT
@@ -91,7 +89,10 @@ void realtime_thread::loop(void)
             case BALANCE: {
                 // ------------------- BALANCE ----------------
                 // state space controller with integrator for velocity error
-                x_bar << phi_bd, gz, phi_fw_vel, m_fil_int.applyConstrained(w - phi_fw_vel, -5.0f * km, 5.0f * km);
+                const float dxidt = w - phi_fw_vel;
+                const float xi = xi_kmin1 + m_Ts * dxidt;
+                xi_kmin1 = xi;
+                x_bar << phi_bd, gz, phi_fw_vel, xi_kmin1;
                 M_mot = -K * x_bar;
                 i_des = M_mot / km;
 

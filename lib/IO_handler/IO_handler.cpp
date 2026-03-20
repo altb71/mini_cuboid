@@ -49,15 +49,15 @@ void IO_handler::update(void)
 {
     // update encoder readings and calculate speed
     m_phi_fw = m_encoder.getAngleRad();
-    m_phi_fw_vel = m_fil_diff.apply(m_phi_fw);
+    m_phi_fw_vel = m_fil_diff(m_phi_fw);
 
     // apply linear characteristics to imu readings
-    m_ax = m_lc_ax2ax.evaluate(m_imu.readAcc_raw(1));
-    m_ay = m_lc_ay2ay.evaluate(-m_imu.readAcc_raw(0));
-    m_gz = m_lc_gz2gz.evaluate(m_imu.readGyro_raw(2));
+    m_ax = m_lc_ax2ax(m_imu.readAcc_raw(1));
+    m_ay = m_lc_ay2ay(-m_imu.readAcc_raw(0));
+    m_gz = m_lc_gz2gz(m_imu.readGyro_raw(2));
 
     // calculate complementary filter for wheel angle
-    m_phi_bd = -M_PIf / 4.0f + atan2f(m_fil_ax.apply(m_ax), m_fil_ay.apply(m_ay)) + m_tau * m_fil_gz.apply(m_gz);
+    m_phi_bd = -M_PIf / 4.0f + atan2f(m_fil_ax(m_ax), m_fil_ay(m_ay)) + m_tau * m_fil_gz(m_gz);
 }
 
 float IO_handler::get_phi_fw(void) { return m_phi_fw; }
@@ -72,7 +72,7 @@ float IO_handler::get_ay(void) { return m_ay; }
 
 float IO_handler::get_gz(void) { return m_gz; }
 
-void IO_handler::write_current(float i_des) { m_a_out = m_lc_i2u.evaluate(i_des); }
+void IO_handler::write_current(float i_des) { m_a_out = m_lc_i2u(i_des); }
 
 void IO_handler::enable_escon(void) { m_d_out = 1; }
 
