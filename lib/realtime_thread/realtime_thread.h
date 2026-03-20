@@ -2,7 +2,6 @@
 
 #include <Eigen/Dense>
 
-#include "EncoderCounter.h"
 #include "IIR_Filter.h"
 #include "IO_handler.h"
 #include "ThreadFlag.h"
@@ -32,4 +31,5 @@ private:
     ControlState m_state;
     IIR_Filter m_fil_int;
     void sendSignal();
+    float saturate(float, float, float);
 };

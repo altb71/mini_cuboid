@@ -36,13 +36,15 @@ realtime_thread::~realtime_thread() {}
 void realtime_thread::loop(void)
 {
     float exc = 0.0f;
-    float kp = 0.3f;
+    const float kp = 0.3f;
 
-    Eigen::Matrix<float, 1, 4> K4;
-    K4 << -1.7131f, -0.1553f, -0.0029f, 0.0023f * 2.0f;
+    Eigen::Matrix<float, 1, 4> K;
+    // K << -1.7131f, -0.1553f, -0.0029f, 0.0023f * 2.0f;
+    K << -2.1862f, -0.2010f, -0.0042f, 0.0100f;
     Eigen::Matrix<float, 4, 1> x_bar;
+    x_bar.setZero();
     float M_mot;
-    float km = 36.9e-3;
+    const float km = 36.9e-3;
 
     while (1) {
         ThisThread::flags_wait_any(m_ThreadFlag);
@@ -51,21 +53,22 @@ void realtime_thread::loop(void)
 
         float w = myDataLogger.get_set_value(time); // get set values from the GUI
 
+        // update sensor readings and readout values from io handler
         m_IO_handler->update();
         const float phi_fw_vel = m_IO_handler->get_phi_fw_vel();
-        const float phi_bd = m_IO_handler->get_phi_bd();
         const float gz = m_IO_handler->get_gz();
+        const float phi_bd = m_IO_handler->get_phi_bd();
 
         float i_des = 0.0f;
-        const bool do_transition = m_IO_handler->get_key_state();
+        const bool do_transition = m_IO_handler->get_and_reset_button_state();
         switch (m_state) {
             case INIT: {
                 // ------------------- INIT -------------------
-
+                // reset system
                 m_fil_int.reset(0.0f);
                 m_IO_handler->disable_escon();
 
-                // Switch to FLAT
+                // switch to FLAT
                 if (do_transition) {
                     m_state = FLAT;
                     m_IO_handler->enable_escon();
@@ -74,11 +77,11 @@ void realtime_thread::loop(void)
             }
             case FLAT: {
                 // ------------------- FLAT -------------------
-
+                // simple P controller
                 // i_des = kp * (w - phi_fw_vel + (exc + 2.0f * M_PIf));
                 i_des = kp * (w - phi_fw_vel);
 
-                // Switch to BALANCE
+                // switch to BALANCE
                 if (do_transition) {
                     m_state = BALANCE;
                     printf("switch to BALANCE\r\n");
@@ -87,12 +90,12 @@ void realtime_thread::loop(void)
             }
             case BALANCE: {
                 // ------------------- BALANCE ----------------
-
-                x_bar << phi_bd, gz, phi_fw_vel, m_fil_int.apply(w - phi_fw_vel);
-                M_mot = -K4 * x_bar;
+                // state space controller with integrator for velocity error
+                x_bar << phi_bd, gz, phi_fw_vel, m_fil_int.applyConstrained(w - phi_fw_vel, -5.0f * km, 5.0f * km);
+                M_mot = -K * x_bar;
                 i_des = M_mot / km;
 
-                // Switch to INIT
+                // switch to INIT
                 if (do_transition) {
                     m_state = INIT;
                     printf("switch to INIT\r\n");
@@ -103,6 +106,8 @@ void realtime_thread::loop(void)
                 break;
         }
 
+        // write current setpoint to motor
+        i_des = saturate(i_des, -15.0f, 15.0f);
         m_IO_handler->write_current(i_des);
 
         myDataLogger.write_to_log(time,
@@ -113,55 +118,18 @@ void realtime_thread::loop(void)
                                   x_bar(2),  // 5
                                   x_bar(3)); // 6
 
-        // GPA calculates future excitation exc(k+1)
-        exc = myGPA.update(i_des, phi_fw_vel);
-
-        // float i_des = 0.0f;
-        // const bool do_transition = m_IO_handler->get_key_state();
-        // switch (m_state) {
-        //     case INIT: {
-        //         I_reg.reset();
-        //         m_IO_handler->disable_escon();
-        //         if (do_transition) {
-        //             m_state = FLAT;
-        //             printf("switch to FLAT\r\n");
-        //             m_IO_handler->enable_escon();
-        //         }
-        //         break;
-        //     }
-        //     case FLAT: {
-        //         i_des = kp * (0 - m_IO_handler->get_phi_fw_vel());
-        //         if (do_transition) {
-        //             m_state = BALANCE;
-        //             printf("switch to BALANCE\r\n");
-        //         }
-        //         break;
-        //     }
-        //     case BALANCE: {
-        //         x_bar << m_IO_handler->get_phi_bd(), m_IO_handler->get_gz(), m_IO_handler->get_phi_fw_vel(),
-        //             I_reg(0 - m_IO_handler->get_phi_fw_vel());
-        //         M_mot = -K4 * x_bar;
-        //         i_des = M_mot / km;
-        //         if (do_transition) {
-        //             m_state = INIT;
-        //             printf("switch to INIT\r\n");
-        //         }
-        //         break;
-        //     }
-        //     default:
-        //         break;
-        // }
-
-        // m_IO_handler->write_current(i_des);
-
-        // myDataLogger.write_to_log(time,
-        //                           u,
-        //                           m_IO_handler->get_ax(),
-        //                           m_IO_handler->get_ay(),
-        //                           m_IO_handler->get_gz(),
-        //                           m_IO_handler->get_phi_fw(),
-        //                           m_IO_handler->get_phi_fw_vel());
+        // GPA - do not overwrite exc if you want to excite via the GPA
+        exc = myGPA.update(i_des, phi_fw_vel); // GPA calculates future excitation exc(k+1)
     }
+}
+
+float realtime_thread::saturate(float x, float ll, float ul)
+{
+    if (x > ul)
+        return ul;
+    else if (x < ll)
+        return ll;
+    return x;
 }
 
 void realtime_thread::sendSignal() { m_Thread.flags_set(m_ThreadFlag); }

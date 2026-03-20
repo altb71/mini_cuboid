@@ -25,7 +25,7 @@ public:
     void write_current(float); // write current to motors (0,...) for motor 1, (1,...) for motor 2
     void enable_escon();
     void disable_escon();
-    bool get_key_state(void);
+    bool get_and_reset_button_state(void);
 
 private:
     Encoder m_encoder; // initialize encoder on PA_8 and PA_9
@@ -37,13 +37,13 @@ private:
     LinearCharacteristics m_lc_i2u;
     LinearCharacteristics m_lc_ax2ax, m_lc_ay2ay, m_lc_gz2gz; // map imu raw values to m/s^2 and rad/s
     // sensor states
-    float m_phi_fw, m_phi_bd; // motor angle /rad
-    float m_phi_fw_vel;       // motor speed / rad / s
-    float m_ax, m_ay, m_gz;   // accelerations and gyroscope
-    void but_pressed(void);
-    bool m_button_was_pressed;
+    float m_phi_fw;         // motor angle in rad
+    float m_phi_bd;         // wheel angle in rad
+    float m_phi_fw_vel;     // motor speed in rad/sec
+    float m_ax, m_ay, m_gz; // accelerations and gyroscope
+    void button_pressed(void);
+    bool m_button_pressed;
     float m_tau = 0.0f;
-    IIR_Filter m_fil_ax, m_fil_ay, m_fil_gz;
     IIR_Filter m_fil_diff;
-    /*  Aufgabe 3.1   */
+    IIR_Filter m_fil_ax, m_fil_ay, m_fil_gz;
 };

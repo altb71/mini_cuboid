@@ -472,7 +472,7 @@ classdef GPA_nucleo_UART_exported < matlab.apps.AppBase
             app.NucleoconnectionUIFigure = uifigure('Visible', 'off');
             app.NucleoconnectionUIFigure.AutoResizeChildren = 'off';
             colormap(app.NucleoconnectionUIFigure, 'parula');
-            app.NucleoconnectionUIFigure.Position = [300 300 654 334];
+            app.NucleoconnectionUIFigure.Position = [300 300 652 334];
             app.NucleoconnectionUIFigure.Name = 'Nucleo connection';
             app.NucleoconnectionUIFigure.Icon = 'nuc.jpg';
             app.NucleoconnectionUIFigure.Resize = 'off';
@@ -769,37 +769,36 @@ classdef GPA_nucleo_UART_exported < matlab.apps.AppBase
             % Create AxAvgEditFieldLabel
             app.AxAvgEditFieldLabel = uilabel(app.IOValuesPanel);
             app.AxAvgEditFieldLabel.HorizontalAlignment = 'right';
-            app.AxAvgEditFieldLabel.Position = [7 97 45 22];
+            app.AxAvgEditFieldLabel.Position = [1 97 45 22];
             app.AxAvgEditFieldLabel.Text = 'Ax Avg.';
 
             % Create AxAvgEditField
             app.AxAvgEditField = uieditfield(app.IOValuesPanel, 'numeric');
-            app.AxAvgEditField.Limits = [-5000 5000];
             app.AxAvgEditField.ValueDisplayFormat = '%.3f';
-            app.AxAvgEditField.Position = [63 97 49 22];
+            app.AxAvgEditField.Position = [54 97 69 22];
 
             % Create AyAvgEditFieldLabel
             app.AyAvgEditFieldLabel = uilabel(app.IOValuesPanel);
             app.AyAvgEditFieldLabel.HorizontalAlignment = 'right';
-            app.AyAvgEditFieldLabel.Position = [8 67 45 22];
+            app.AyAvgEditFieldLabel.Position = [2 67 45 22];
             app.AyAvgEditFieldLabel.Text = 'Ay Avg.';
 
             % Create AyAvgEditField
             app.AyAvgEditField = uieditfield(app.IOValuesPanel, 'numeric');
             app.AyAvgEditField.ValueDisplayFormat = '%.3f';
-            app.AyAvgEditField.Position = [63 70 49 22];
+            app.AyAvgEditField.Position = [54 70 69 22];
 
             % Create GzAvgEditFieldLabel
             app.GzAvgEditFieldLabel = uilabel(app.IOValuesPanel);
             app.GzAvgEditFieldLabel.HorizontalAlignment = 'right';
-            app.GzAvgEditFieldLabel.Position = [7 40 47 22];
+            app.GzAvgEditFieldLabel.Position = [1 40 47 22];
             app.GzAvgEditFieldLabel.Text = 'Gz Avg.';
 
             % Create GzAvgEditField
             app.GzAvgEditField = uieditfield(app.IOValuesPanel, 'numeric');
             app.GzAvgEditField.Limits = [-1000 1000];
             app.GzAvgEditField.ValueDisplayFormat = '%.3f';
-            app.GzAvgEditField.Position = [63 43 50 22];
+            app.GzAvgEditField.Position = [54 43 70 22];
 
             % Show the figure after all components are created
             app.NucleoconnectionUIFigure.Visible = 'on';

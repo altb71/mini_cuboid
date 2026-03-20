@@ -26,9 +26,6 @@ void LinearCharacteristics::init(float xmin, float xmax, float ymin, float ymax)
     m_offset = xmin - ymin / m_gain;
     m_ulim = 999999.0f;  // a large number
     m_llim = -999999.0f; // a large neg. number
-    // TODO: Check if we do not want to set the limits here
-    // m_ulim = ymax;
-    // m_llim = ymin;
 }
 
 float LinearCharacteristics::evaluate(float x)

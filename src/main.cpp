@@ -6,12 +6,21 @@
 #include "uart_comm_thread_receive.h"
 #include "uart_comm_thread_send.h"
 
-// TODO:
-// - Check imu settings
-// - Change app names and prints and defaults
-
 // IMPORTANT:
 // - Do NOT set the BufferedSerial to non-blocking mode, as this will break proper communication!
+
+// Changelog (unsorted):
+// - Eigen is now working for the Nucleo L432KC
+// - All operators in IIR_Filter and LinearCharacteristics were removed, you have to use .evaluate and .apply now
+// - Encoder now replaces EncoderCounterIndex and Enc_unwrap
+// - DebounceIn is now used for the button
+// - Extended EncoderCounter so it will also work with Mbed CE
+// - Simplified logic, removed statemachine class and moved everything to realtime_thread
+// - Added GPA and GUI
+// - Updated GUI
+// - Added AvgFilter for vizualization of set values in GUI
+// - Replaced IIR_Filter with a sligthly more future proof implementation
+// - Removed PID_CNtrl, integrator is now part of IIR_Filter
 
 float Ts = 1.0f / 1.0e3f;
 GPA myGPA(1.0f, 245.0f, 30, 0.1f, 0.2f, Ts); // setup here does not affect the actual used parameters, they are set via
