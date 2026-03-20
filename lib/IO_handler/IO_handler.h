@@ -4,7 +4,7 @@
 
 #include "DebounceIn.h"
 #include "Encoder.h"
-#include "IIRFilter.h"
+#include "IIR_Filter.h"
 #include "LinearCharacteristics.h"
 #include "mpu6500_spi.h"
 
@@ -43,7 +43,7 @@ private:
     void but_pressed(void);
     bool m_button_was_pressed;
     float m_tau = 0.0f;
-    IIRFilter m_fil_ax, m_fil_ay, m_fil_gz;
-    IIRFilter m_fil_diff;
+    IIR_Filter m_fil_ax, m_fil_ay, m_fil_gz;
+    IIR_Filter m_fil_diff;
     /*  Aufgabe 3.1   */
 };

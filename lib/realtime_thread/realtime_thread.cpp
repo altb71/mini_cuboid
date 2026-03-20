@@ -26,7 +26,7 @@ realtime_thread::realtime_thread(IO_handler *io_handler, float Ts)
     m_IO_handler->disable_escon();
     m_Timer.reset();
     m_Timer.start();
-    I_reg = PID_Cntrl(0, 1, 0, 0, Ts, -1000, 1000);
+    m_fil_int.integratorInit(Ts);
 }
 
 // decontructor for controller loop
@@ -62,7 +62,7 @@ void realtime_thread::loop(void)
             case INIT: {
                 // ------------------- INIT -------------------
 
-                I_reg.reset();
+                m_fil_int.reset(0.0f);
                 m_IO_handler->disable_escon();
 
                 // Switch to FLAT
@@ -88,7 +88,7 @@ void realtime_thread::loop(void)
             case BALANCE: {
                 // ------------------- BALANCE ----------------
 
-                x_bar << phi_bd, gz, phi_fw_vel, I_reg(0 - phi_fw_vel);
+                x_bar << phi_bd, gz, phi_fw_vel, m_fil_int.apply(w - phi_fw_vel);
                 M_mot = -K4 * x_bar;
                 i_des = M_mot / km;
 
@@ -102,6 +102,7 @@ void realtime_thread::loop(void)
             default:
                 break;
         }
+
         m_IO_handler->write_current(i_des);
 
         myDataLogger.write_to_log(time,

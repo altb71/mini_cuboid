@@ -3,8 +3,8 @@
 #include <Eigen/Dense>
 
 #include "EncoderCounter.h"
+#include "IIR_Filter.h"
 #include "IO_handler.h"
-#include "PID_Cntrl.h"
 #include "ThreadFlag.h"
 #include "mbed.h"
 
@@ -28,8 +28,8 @@ private:
     Ticker m_Ticker;
     ThreadFlag m_ThreadFlag;
     Timer m_Timer;
-    PID_Cntrl I_reg;
     float m_Ts;
     ControlState m_state;
+    IIR_Filter m_fil_int;
     void sendSignal();
 };

@@ -1,4 +1,4 @@
-#include "IIRFilter.h"
+#include "IIR_Filter.h"
 
 #include <math.h>
 
@@ -10,14 +10,14 @@
 // Time continuous prototype: G(s) = 1 / s
 // Discretization method: Euler
 
-void IIRFilter::integratorInit(const float Ts)
+void IIR_Filter::integratorInit(const float Ts)
 {
     filter.order = 1;
     integratorUpdate(Ts);
     reset(0.0f);
 }
 
-void IIRFilter::integratorUpdate(const float Ts)
+void IIR_Filter::integratorUpdate(const float Ts)
 {
     filter.B[0] = Ts;
     filter.B[1] = 0.0f;
@@ -30,14 +30,14 @@ void IIRFilter::integratorUpdate(const float Ts)
 // Time continuous prototype: G(s) = s
 // Discretization method: Euler
 
-void IIRFilter::differentiatorInit(const float Ts)
+void IIR_Filter::differentiatorInit(const float Ts)
 {
     filter.order = 1;
     differentiatorUpdate(Ts);
     resetDifferentingFilterToZero(0.0f);
 }
 
-void IIRFilter::differentiatorUpdate(const float Ts)
+void IIR_Filter::differentiatorUpdate(const float Ts)
 {
     filter.B[0] = 1.0f / Ts;
     filter.B[1] = -1.0f / Ts;
@@ -50,14 +50,14 @@ void IIRFilter::differentiatorUpdate(const float Ts)
 // Time continuous prototype: G(s) = wcut / (s + wcut)
 // Discretization method: Tustin
 
-void IIRFilter::lowPass1Init(const float fcut, const float Ts)
+void IIR_Filter::lowPass1Init(const float fcut, const float Ts)
 {
     filter.order = 1;
     lowPass1Update(fcut, Ts);
     reset(0.0f);
 }
 
-void IIRFilter::lowPass1Update(const float fcut, const float Ts)
+void IIR_Filter::lowPass1Update(const float fcut, const float Ts)
 {
     // a0 = pi*Ts*fcut + 1;
     // b0 = pi*Ts*fcut;
@@ -78,14 +78,14 @@ void IIRFilter::lowPass1Update(const float fcut, const float Ts)
 // Time continuous prototype: G(s) = wcut * s / (s + wcut)
 // Discretization method: Tustin
 
-void IIRFilter::differentiatingLowPass1Init(const float fcut, const float Ts)
+void IIR_Filter::differentiatingLowPass1Init(const float fcut, const float Ts)
 {
     filter.order = 1;
     differentiatingLowPass1Update(fcut, Ts);
     resetDifferentingFilterToZero(0.0f);
 }
 
-void IIRFilter::differentiatingLowPass1Update(const float fcut, const float Ts)
+void IIR_Filter::differentiatingLowPass1Update(const float fcut, const float Ts)
 {
     // a0 = pi*Ts*fcut + 1;
     // b0 = 2*pi*fcut;
@@ -106,14 +106,14 @@ void IIRFilter::differentiatingLowPass1Update(const float fcut, const float Ts)
 // Time continuous prototype: G(s) = (wPole / wZero) * (s + wZero) / (s + wPole)
 // Discretization method: Tustin with prewarping
 
-void IIRFilter::leadLag1Init(const float fZero, const float fPole, const float Ts)
+void IIR_Filter::leadLag1Init(const float fZero, const float fPole, const float Ts)
 {
     filter.order = 1;
     leadLag1Update(fZero, fPole, Ts);
     reset(0.0f);
 }
 
-void IIRFilter::leadLag1Update(const float fZero, const float fPole, const float Ts)
+void IIR_Filter::leadLag1Update(const float fZero, const float fPole, const float Ts)
 {
     const float wZero = (2.0f / Ts) * tanf(M_PIf * fZero * Ts);
     const float wPole = (2.0f / Ts) * tanf(M_PIf * fPole * Ts);
@@ -126,14 +126,14 @@ void IIRFilter::leadLag1Update(const float fZero, const float fPole, const float
     filter.A[1] = 0.0f;
 }
 
-void IIRFilter::phaseComp1Init(const float fCenter, const float phaseLift, const float Ts)
+void IIR_Filter::phaseComp1Init(const float fCenter, const float phaseLift, const float Ts)
 {
     filter.order = 1;
     phaseComp1Update(fCenter, phaseLift, Ts);
     reset(0.0f);
 }
 
-void IIRFilter::phaseComp1Update(const float fCenter, const float phaseLift, const float Ts)
+void IIR_Filter::phaseComp1Update(const float fCenter, const float phaseLift, const float Ts)
 {
     const float sn = sinf(M_PIf / 180.0f * phaseLift);
     const float k = sqrtf((1.0f - sn) / (1.0f + sn));
@@ -147,14 +147,14 @@ void IIRFilter::phaseComp1Update(const float fCenter, const float phaseLift, con
 // Time continuous prototype: G(s) = (s^2 + wcut^2) / (s^2 + 2 * D * wcut * s + wcut^2)
 // Discretization method: Tustin with prewarping
 
-void IIRFilter::notchInit(const float fcut, const float D, const float Ts)
+void IIR_Filter::notchInit(const float fcut, const float D, const float Ts)
 {
     filter.order = 2;
     notchUpdate(fcut, D, Ts);
     reset(0.0f);
 }
 
-void IIRFilter::notchUpdate(const float fcut, const float D, const float Ts)
+void IIR_Filter::notchUpdate(const float fcut, const float D, const float Ts)
 {
     // prewarp is done implicitly
     const float omega = 2.0f * M_PIf * fcut * Ts;
@@ -172,14 +172,14 @@ void IIRFilter::notchUpdate(const float fcut, const float D, const float Ts)
 // Time continuous prototype: G(s) = wcut^2 / (s^2 + 2 * D * wcut * s + wcut^2)
 // Discretization method: Euler
 
-void IIRFilter::lowPass2Init(const float fcut, const float D, const float Ts)
+void IIR_Filter::lowPass2Init(const float fcut, const float D, const float Ts)
 {
     filter.order = 2;
     lowPass2Update(fcut, D, Ts);
     reset(0.0f);
 }
 
-void IIRFilter::lowPass2Update(const float fcut, const float D, const float Ts)
+void IIR_Filter::lowPass2Update(const float fcut, const float D, const float Ts)
 {
     const float wcut = 2.0f * M_PIf * fcut;
     const float k1 = 2.0f * D * Ts * wcut;
@@ -196,14 +196,14 @@ void IIRFilter::lowPass2Update(const float fcut, const float D, const float Ts)
 // G(s) = (wPole^2 / wZero^2) * (s^2 + 2*DZero*wZero*s + wZero^2) / (s^2 + 2*DPole*wPole*s + wPole^2)
 // Discretization method: Tustin with prewarping
 
-void IIRFilter::leadLag2Init(const float fZero, const float DZero, const float fPole, const float DPole, const float Ts)
+void IIR_Filter::leadLag2Init(const float fZero, const float DZero, const float fPole, const float DPole, const float Ts)
 {
     filter.order = 2;
     leadLag2Update(fZero, DZero, fPole, DPole, Ts);
     reset(0.0f);
 }
 
-void IIRFilter::leadLag2Update(const float fZero, const float DZero, const float fPole, const float DPole, const float Ts)
+void IIR_Filter::leadLag2Update(const float fZero, const float DZero, const float fPole, const float DPole, const float Ts)
 {
     // prewarp is done implicitly
     const float omegaZero = 2.0f * M_PIf * fZero * Ts;
@@ -223,7 +223,7 @@ void IIRFilter::leadLag2Update(const float fZero, const float DZero, const float
     // filter.A[1] = filter.B[0] + filter.B[1] + filter.B[2] - 1.0f - filter.A[0];
 }
 
-void IIRFilter::reset(const float output)
+void IIR_Filter::reset(const float output)
 {
     // For unity-DC-gain filters, a constant input/output steady state is:
     // u(k-1) = u(k-2) = output
@@ -237,7 +237,7 @@ void IIRFilter::reset(const float output)
 // Assuming a constant input, differentiating results in zero output
 // Currently only implemented for first order differentiators
 
-void IIRFilter::resetDifferentingFilterToZero(const float output)
+void IIR_Filter::resetDifferentingFilterToZero(const float output)
 {
     // Here "output" is interpreted as the current constant input level.
     filter.u[0] = output;
@@ -246,7 +246,7 @@ void IIRFilter::resetDifferentingFilterToZero(const float output)
     filter.y[1] = 0.0f;
 }
 
-float IIRFilter::apply(const float input)
+float IIR_Filter::apply(const float input)
 {
     float output = 0.0f;
 
@@ -267,7 +267,7 @@ float IIRFilter::apply(const float input)
     return output;
 }
 
-float IIRFilter::applyConstrained(const float input, const float yMin, const float yMax)
+float IIR_Filter::applyConstrained(const float input, const float yMin, const float yMax)
 {
     float outputUnconstrained = 0.0f;
 

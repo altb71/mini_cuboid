@@ -1,16 +1,9 @@
-/**
- * @file IIRFilter.h
- * @brief This file defines the IIRFilter class.
- * @author M. Peter / pmic / pichim
- */
+#pragma once
 
-#ifndef IIR_FILTER_H_
-#define IIR_FILTER_H_
-
-class IIRFilter {
+class IIR_Filter {
 public:
-    explicit IIRFilter() {};
-    virtual ~IIRFilter() = default;
+    explicit IIR_Filter() {};
+    virtual ~IIR_Filter() = default;
 
     void integratorInit(const float Ts);
     void integratorUpdate(const float Ts);
@@ -44,7 +37,7 @@ public:
     float applyConstrained(const float input, const float yMin, const float yMax);
 
 private:
-    struct IIRFilterParams {
+    struct IIR_FilterParams {
         unsigned order = 0;
         float A[2] = {0.0f, 0.0f};       // [a1, a2], a0 is always 1.0
         float B[3] = {0.0f, 0.0f, 0.0f}; // [b0, b1, b2]
@@ -52,5 +45,3 @@ private:
         float y[2] = {0.0f, 0.0f};       // [y(k-1), y(k-2)]
     } filter;
 };
-
-#endif /* IIR_FILTER_H_ */
