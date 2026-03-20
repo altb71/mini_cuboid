@@ -53,10 +53,11 @@ B_ = [s3_.b;0];
 K = place(A_,B_,10*[-.707+.707i -.707-.707i -1 -.1]);
 fprintf('K << %1.4ff, %1.4ff, %1.4ff, %1.4ff;\n', K(1), K(2), K(3), K(4));
 
-Q = diag([1 0.01 0.01 10]);
+Q = diag([1 0.01 0.01 100]);
 K =lqr(A_, B_, Q, 1e5)
-% [K, ~, E] =lqr(A_, B_, Q, 1000)
-fprintf('K << %1.4ff, %1.4ff, %1.4ff, %1.4ff;\n', K(1), K(2), K(3), K(4));
+% Matrix<float, 1, 3> Kx(-2.1929f, -0.2016f, -0.0042f);
+fprintf('float Ki(%1.4ff);\n', K(4));
+fprintf('Matrix<float, 1, 3> Kx(%1.4ff, %1.4ff, %1.4ff);\n', K(1), K(2), K(3));
 
 
 %%

@@ -36,13 +36,15 @@ void realtime_thread::loop(void)
 {
     float exc = 0.0f;
     const float kp = 0.3f;
-
-    const Eigen::Matrix<float, 1, 4> K(-2.1929f, -0.2016f, -0.0042f, 0.0100f);
-    Eigen::Matrix<float, 4, 1> x_bar;
-    x_bar.setZero();
-    float xi_kmin1 = 0.0f;
-    float M_mot;
     const float km = 36.9e-3;
+
+    float Ki(0.0316f);
+    Matrix<float, 1, 3> Kx(-3.5206f, -0.3255f, -0.0100f);
+    float xi = 0.0f;
+    Matrix<float, 3, 1> x(0.0f, 0.0f, 0.0f);
+
+    Ki = Ki / km;
+    Kx = Kx / km;
 
     while (1) {
         ThisThread::flags_wait_any(m_ThreadFlag);
@@ -63,7 +65,7 @@ void realtime_thread::loop(void)
             case INIT: {
                 // ------------------- INIT -------------------
                 // reset system
-                xi_kmin1 = 0.0f;
+                xi = 0.0f;
                 m_IO_handler->disable_escon();
 
                 // switch to FLAT
@@ -89,12 +91,9 @@ void realtime_thread::loop(void)
             case BALANCE: {
                 // ------------------- BALANCE ----------------
                 // state space controller with integrator for velocity error
-                const float dxidt = w - phi_fw_vel;
-                const float xi = xi_kmin1 + m_Ts * dxidt;
-                xi_kmin1 = xi;
-                x_bar << phi_bd, gz, phi_fw_vel, xi_kmin1;
-                M_mot = -K * x_bar;
-                i_des = M_mot / km;
+                x << phi_bd, gz, phi_fw_vel;
+                xi = saturate(xi + m_Ts * Ki * (w - phi_fw_vel), -2.0f, 2.0f);
+                i_des = -Kx * x - xi;
 
                 // switch to INIT
                 if (do_transition) {
@@ -112,12 +111,12 @@ void realtime_thread::loop(void)
         m_IO_handler->write_current(i_des);
 
         myDataLogger.write_to_log(time,
-                                  w,         // 1
-                                  i_des,     // 2
-                                  x_bar(0),  // 3
-                                  x_bar(1),  // 4
-                                  x_bar(2),  // 5
-                                  x_bar(3)); // 6
+                                  w,     // 1
+                                  i_des, // 2
+                                  x(0),  // 3
+                                  x(1),  // 4
+                                  x(2),  // 5
+                                  xi);   // 6
 
         // GPA - do not overwrite exc if you want to excite via the GPA
         exc = myGPA.update(i_des, phi_fw_vel); // GPA calculates future excitation exc(k+1)
