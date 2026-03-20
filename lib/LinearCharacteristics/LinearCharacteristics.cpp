@@ -4,13 +4,23 @@ using namespace std;
 
 LinearCharacteristics::LinearCharacteristics(float gain, float offset)
 {
-    m_gain = gain;
-    m_offset = offset;
-    m_ulim = 999999.0f;  // a large number
-    m_llim = -999999.0f; // a large neg. number
+    init(gain, offset);
 }
 
 LinearCharacteristics::LinearCharacteristics(float xmin, float xmax, float ymin, float ymax)
+{
+    init(xmin, xmax, ymin, ymax);
+}
+
+LinearCharacteristics::~LinearCharacteristics() {}
+
+void LinearCharacteristics::init(float gain, float offset)
+{
+    m_gain = gain;
+    m_offset = offset;
+}
+
+void LinearCharacteristics::init(float xmin, float xmax, float ymin, float ymax)
 {
     m_gain = (ymax - ymin) / (xmax - xmin);
     m_offset = xmin - ymin / m_gain;
@@ -20,8 +30,6 @@ LinearCharacteristics::LinearCharacteristics(float xmin, float xmax, float ymin,
     // m_ulim = ymax;
     // m_llim = ymin;
 }
-
-LinearCharacteristics::~LinearCharacteristics() {}
 
 float LinearCharacteristics::evaluate(float x)
 {

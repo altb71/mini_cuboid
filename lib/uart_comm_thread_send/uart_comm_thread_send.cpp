@@ -20,6 +20,8 @@ uart_comm_thread_send::uart_comm_thread_send(IO_handler *io, BufferedSerial *com
     this->Ts = Ts;
     gpa_stop_sent = false;
     this->m_io = io;
+    for (int i = 0; i < 3; ++i)
+        avg_filter[i].init(Navg);
 }
 
 // #### destructor
@@ -62,18 +64,30 @@ void uart_comm_thread_send::send_gpa_data(void)
 
 void uart_comm_thread_send::send_slow_data(void)
 {
+    float ax_avg, ay_avg, gz_avg;
+    if (is_first_avg) {
+        is_first_avg = false;
+        ax_avg = avg_filter[0].reset(m_io->get_ax());
+        ay_avg = avg_filter[1].reset(m_io->get_ay());
+        gz_avg = avg_filter[2].reset(m_io->get_gz());
+    } else {
+        ax_avg = avg_filter[0].apply(m_io->get_ax());
+        ay_avg = avg_filter[1].apply(m_io->get_ay());
+        gz_avg = avg_filter[2].apply(m_io->get_gz());
+    }
+
     // char local_buffer[5] = {0, 0, 0, 0, 0};
     float buf[3];
     // char str[30];
     switch (send_state_slow) {
         case 100: // only at startup
-            send_text((char *)"RCRC Mbed firmware started");
+            send_text((char *)"Mini Cuboid Mbed firmware started");
             send_state_slow = 115;
             break;
         case 115:
-            buf[0] = m_io->get_ax();
-            buf[1] = m_io->get_ay();
-            buf[2] = m_io->get_gz();
+            buf[0] = ax_avg;
+            buf[1] = ay_avg;
+            buf[2] = gz_avg;
             send(115, 1, 12, (char *)&buf[0]);
             send_state_slow = 210;
             break;
@@ -128,7 +142,8 @@ void uart_comm_thread_send::start_uart(void)
 {
 
     thread.start(callback(this, &uart_comm_thread_send::loop));
-    ticker.attach(callback(this, &uart_comm_thread_send::sendThreadFlag), microseconds{static_cast<int64_t>(Ts * 1e6f)});
+    ticker.attach(callback(this, &uart_comm_thread_send::sendThreadFlag),
+                  microseconds{static_cast<int64_t>(Ts * 1e6f)});
 }
 
 // this is for realtime OS

@@ -7,7 +7,9 @@ public:
     LinearCharacteristics(float, float);               // constructor with gain and offset
     LinearCharacteristics(float, float, float, float); // constructor with min/max values
 
-    float evaluate(float); // calculate y(x)
+    float evaluate(float);                 // calculate y(x)
+    void init(float, float);               // set gain and offset
+    void init(float, float, float, float); // set gain and offset based on min/max values
     float operator()(float x) { return evaluate(x); }
     virtual ~LinearCharacteristics(); // deconstructor
     void set_limits(float, float);

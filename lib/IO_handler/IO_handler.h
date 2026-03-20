@@ -4,7 +4,7 @@
 
 #include "DebounceIn.h"
 #include "Encoder.h"
-#include "IIR_filter.h"
+#include "IIRFilter.h"
 #include "LinearCharacteristics.h"
 #include "mpu6500_spi.h"
 
@@ -42,7 +42,8 @@ private:
     float m_ax, m_ay, m_gz;   // accelerations and gyroscope
     void but_pressed(void);
     bool m_button_was_pressed;
-    IIR_filter m_fil_ax, m_fil_ay, m_fil_gz;
-    IIR_filter m_fil_diff;
+    float m_tau = 0.0f;
+    IIRFilter m_fil_ax, m_fil_ay, m_fil_gz;
+    IIRFilter m_fil_diff;
     /*  Aufgabe 3.1   */
 };

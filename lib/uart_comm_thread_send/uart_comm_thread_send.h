@@ -3,10 +3,13 @@
 #include <cstdint>
 #include <stdint.h>
 
+#include "AvgFilter.h"
 #include "IO_handler.h"
 #include "ThreadFlag.h"
 #include "mbed.h"
 #include "uartProtocolDefinition.h"
+
+#define Navg 100
 
 using namespace std;
 
@@ -42,4 +45,6 @@ private:
     Ticker ticker;
     void sendThreadFlag();
     IO_handler *m_io;
+    AvgFilter avg_filter[3];
+    bool is_first_avg = true;
 };

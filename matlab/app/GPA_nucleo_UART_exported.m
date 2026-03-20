@@ -4,12 +4,12 @@ classdef GPA_nucleo_UART_exported < matlab.apps.AppBase
     properties (Access = public)
         NucleoconnectionUIFigure  matlab.ui.Figure
         IOValuesPanel             matlab.ui.container.Panel
-        in2EditField              matlab.ui.control.NumericEditField
-        in2EditFieldLabel         matlab.ui.control.Label
-        in1EditField              matlab.ui.control.NumericEditField
-        in1EditFieldLabel         matlab.ui.control.Label
-        outEditField              matlab.ui.control.NumericEditField
-        outEditFieldLabel         matlab.ui.control.Label
+        GzAvgEditField            matlab.ui.control.NumericEditField
+        GzAvgEditFieldLabel       matlab.ui.control.Label
+        AyAvgEditField            matlab.ui.control.NumericEditField
+        AyAvgEditFieldLabel       matlab.ui.control.Label
+        AxAvgEditField            matlab.ui.control.NumericEditField
+        AxAvgEditFieldLabel       matlab.ui.control.Label
         IdType1plantcl2plantol3posplantclLabel  matlab.ui.control.Label
         GPAPanel                  matlab.ui.container.Panel
         gpa_meas_startButton      matlab.ui.control.Button
@@ -346,9 +346,9 @@ classdef GPA_nucleo_UART_exported < matlab.apps.AppBase
                                     switch app.loc_data(k).id2
                                         case 1
                                             val = double(typecast(uint8(app.loc_data(k).grab), 'single'))';
-                                            app.outEditField.Value = val(1);
-                                            app.in1EditField.Value = val(2);
-                                            app.in2EditField.Value = val(3);
+                                            app.AxAvgEditField.Value = val(1);
+                                            app.AyAvgEditField.Value = val(2);
+                                            app.GzAvgEditField.Value = val(3);
                                     end
                                 case 202
                                     val = double(typecast(uint8(app.loc_data(k).grab), 'single'))';
@@ -472,7 +472,7 @@ classdef GPA_nucleo_UART_exported < matlab.apps.AppBase
             app.NucleoconnectionUIFigure = uifigure('Visible', 'off');
             app.NucleoconnectionUIFigure.AutoResizeChildren = 'off';
             colormap(app.NucleoconnectionUIFigure, 'parula');
-            app.NucleoconnectionUIFigure.Position = [300 300 623 334];
+            app.NucleoconnectionUIFigure.Position = [300 300 654 334];
             app.NucleoconnectionUIFigure.Name = 'Nucleo connection';
             app.NucleoconnectionUIFigure.Icon = 'nuc.jpg';
             app.NucleoconnectionUIFigure.Resize = 'off';
@@ -610,7 +610,7 @@ classdef GPA_nucleo_UART_exported < matlab.apps.AppBase
             app.DwnsampEditField = uieditfield(app.TimemeasuresPanel, 'numeric');
             app.DwnsampEditField.Limits = [1 50];
             app.DwnsampEditField.Position = [167 33 23 22];
-            app.DwnsampEditField.Value = 1;
+            app.DwnsampEditField.Value = 5;
 
             % Create HzLabel
             app.HzLabel = uilabel(app.TimemeasuresPanel);
@@ -623,7 +623,7 @@ classdef GPA_nucleo_UART_exported < matlab.apps.AppBase
             app.TxtOutput.FontSize = 11;
             app.TxtOutput.FontColor = [0 1 0];
             app.TxtOutput.BackgroundColor = [0 0 0];
-            app.TxtOutput.Position = [293 198 318 126];
+            app.TxtOutput.Position = [293 198 349 126];
             app.TxtOutput.Value = {'Nucleo Communication'; '--------------------'};
 
             % Create GPAPanel
@@ -671,7 +671,7 @@ classdef GPA_nucleo_UART_exported < matlab.apps.AppBase
             app.GPA_f1 = uieditfield(app.GPAPanel, 'numeric');
             app.GPA_f1.Limits = [1 10000];
             app.GPA_f1.Position = [201 91 41 22];
-            app.GPA_f1.Value = 1000;
+            app.GPA_f1.Value = 490;
 
             % Create f0Label
             app.f0Label = uilabel(app.GPAPanel);
@@ -707,7 +707,7 @@ classdef GPA_nucleo_UART_exported < matlab.apps.AppBase
             app.GPA_A1 = uieditfield(app.GPAPanel, 'numeric');
             app.GPA_A1.Limits = [0 Inf];
             app.GPA_A1.Position = [201 43 42 22];
-            app.GPA_A1.Value = 1;
+            app.GPA_A1.Value = 2;
 
             % Create NLabel
             app.NLabel = uilabel(app.GPAPanel);
@@ -720,7 +720,7 @@ classdef GPA_nucleo_UART_exported < matlab.apps.AppBase
             app.GPA_N.Limits = [1 255];
             app.GPA_N.RoundFractionalValues = 'on';
             app.GPA_N.Position = [201 17 42 22];
-            app.GPA_N.Value = 30;
+            app.GPA_N.Value = 60;
 
             % Create MotNb1or2Label
             app.MotNb1or2Label = uilabel(app.GPAPanel);
@@ -764,44 +764,42 @@ classdef GPA_nucleo_UART_exported < matlab.apps.AppBase
             app.IOValuesPanel = uipanel(app.NucleoconnectionUIFigure);
             app.IOValuesPanel.AutoResizeChildren = 'off';
             app.IOValuesPanel.Title = 'I/O Values';
-            app.IOValuesPanel.Position = [511 27 100 159];
+            app.IOValuesPanel.Position = [511 27 131 159];
 
-            % Create outEditFieldLabel
-            app.outEditFieldLabel = uilabel(app.IOValuesPanel);
-            app.outEditFieldLabel.HorizontalAlignment = 'right';
-            app.outEditFieldLabel.Position = [2 97 25 22];
-            app.outEditFieldLabel.Text = 'out';
+            % Create AxAvgEditFieldLabel
+            app.AxAvgEditFieldLabel = uilabel(app.IOValuesPanel);
+            app.AxAvgEditFieldLabel.HorizontalAlignment = 'right';
+            app.AxAvgEditFieldLabel.Position = [7 97 45 22];
+            app.AxAvgEditFieldLabel.Text = 'Ax Avg.';
 
-            % Create outEditField
-            app.outEditField = uieditfield(app.IOValuesPanel, 'numeric');
-            app.outEditField.Limits = [-5000 5000];
-            app.outEditField.ValueDisplayFormat = '%.3f';
-            app.outEditField.Position = [38 97 49 22];
-            app.outEditField.Value = 1;
+            % Create AxAvgEditField
+            app.AxAvgEditField = uieditfield(app.IOValuesPanel, 'numeric');
+            app.AxAvgEditField.Limits = [-5000 5000];
+            app.AxAvgEditField.ValueDisplayFormat = '%.3f';
+            app.AxAvgEditField.Position = [63 97 49 22];
 
-            % Create in1EditFieldLabel
-            app.in1EditFieldLabel = uilabel(app.IOValuesPanel);
-            app.in1EditFieldLabel.HorizontalAlignment = 'right';
-            app.in1EditFieldLabel.Position = [-6 67 34 22];
-            app.in1EditFieldLabel.Text = 'in1';
+            % Create AyAvgEditFieldLabel
+            app.AyAvgEditFieldLabel = uilabel(app.IOValuesPanel);
+            app.AyAvgEditFieldLabel.HorizontalAlignment = 'right';
+            app.AyAvgEditFieldLabel.Position = [8 67 45 22];
+            app.AyAvgEditFieldLabel.Text = 'Ay Avg.';
 
-            % Create in1EditField
-            app.in1EditField = uieditfield(app.IOValuesPanel, 'numeric');
-            app.in1EditField.ValueDisplayFormat = '%.3f';
-            app.in1EditField.Position = [38 70 49 22];
-            app.in1EditField.Value = 5;
+            % Create AyAvgEditField
+            app.AyAvgEditField = uieditfield(app.IOValuesPanel, 'numeric');
+            app.AyAvgEditField.ValueDisplayFormat = '%.3f';
+            app.AyAvgEditField.Position = [63 70 49 22];
 
-            % Create in2EditFieldLabel
-            app.in2EditFieldLabel = uilabel(app.IOValuesPanel);
-            app.in2EditFieldLabel.HorizontalAlignment = 'right';
-            app.in2EditFieldLabel.Position = [4 40 25 22];
-            app.in2EditFieldLabel.Text = 'in2';
+            % Create GzAvgEditFieldLabel
+            app.GzAvgEditFieldLabel = uilabel(app.IOValuesPanel);
+            app.GzAvgEditFieldLabel.HorizontalAlignment = 'right';
+            app.GzAvgEditFieldLabel.Position = [7 40 47 22];
+            app.GzAvgEditFieldLabel.Text = 'Gz Avg.';
 
-            % Create in2EditField
-            app.in2EditField = uieditfield(app.IOValuesPanel, 'numeric');
-            app.in2EditField.Limits = [-1000 1000];
-            app.in2EditField.ValueDisplayFormat = '%.3f';
-            app.in2EditField.Position = [38 43 50 22];
+            % Create GzAvgEditField
+            app.GzAvgEditField = uieditfield(app.IOValuesPanel, 'numeric');
+            app.GzAvgEditField.Limits = [-1000 1000];
+            app.GzAvgEditField.ValueDisplayFormat = '%.3f';
+            app.GzAvgEditField.Position = [63 43 50 22];
 
             % Show the figure after all components are created
             app.NucleoconnectionUIFigure.Visible = 'on';
