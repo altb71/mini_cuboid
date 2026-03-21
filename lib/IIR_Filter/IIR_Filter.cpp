@@ -13,21 +13,7 @@ IIR_Filter::~IIR_Filter() {}
 // Discretization method: Tustin
 void IIR_Filter::lowPass1Init(float tau, float Ts)
 {
-    // --- AUFGABE 2.4 ---
-    // a1 = Ts + 2*tau;
-    // b1 = Ts;
-    // b0 = b1;
-    // a0 = Ts - 2*tau;
-    const float a1 = Ts + 2.0f * tau;
-    const float b1 = Ts;
-    const float b0 = b1;
-    const float a0 = Ts - 2.0f * tau;
 
-    m_b1 = b1 / a1;
-    m_b0 = b0 / a1;
-    m_a0 = a0 / a1;
-
-    reset(0.0f, 0.0f);
 }
 
 // First Order Differentiating Lowpass Filter

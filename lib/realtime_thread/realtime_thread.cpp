@@ -37,18 +37,6 @@ void realtime_thread::loop(void)
     const float km = 36.9e-3f;
     float exc = 0.0f;
 
-    // // --- AUFGABE 5.2 ---
-    // Matrix<float, 1, 2> K2(-1.0557f, -0.0675f);
-    // Matrix<float, 2, 1> x2(0.0f, 0.0f);
-
-    // --- AUFGABE 6.5 ---
-    Matrix<float, 1, 4> K4(-2.1929f, -0.2016f, -0.0042f, 0.0100f);
-    Matrix<float, 4, 1> x4(0.0f, 0.0f, 0.0f, 0.0f);
-    float xi = 0.0f;
-
-    // --- AUFGABE 7.1 ---
-    const float kp = 0.2f;
-
     while (1) {
         ThisThread::flags_wait_any(m_ThreadFlag);
         const float time = 1e-6f * (float)(duration_cast<microseconds>(m_Timer.elapsed_time()).count());
@@ -62,88 +50,56 @@ void realtime_thread::loop(void)
         const float gz = m_IO_handler->get_gz();
         const float phi_bd = m_IO_handler->get_phi_bd();
 
-        // // --- AUFGABE 3.2 ---
-        // myDataLogger.write_to_log(time, phi_bd, 0.0f, 0.0f, 0.0f, 0.0f, 0.0f);
+        // // state machine
+        // float i_des = 0.0f;
+        // const bool do_transition = m_IO_handler->get_and_reset_button_state();
+        // switch (m_state) {
+        //     case INIT: {
+        //         // ------------------- INIT -------------------
+        //         // disable motor and wait for button press to switch to FLAT
+        //         m_IO_handler->disable_escon();
 
-        // state machine
-        float i_des = 0.0f;
-        const bool do_transition = m_IO_handler->get_and_reset_button_state();
-        switch (m_state) {
-            case INIT: {
-                // ------------------- INIT -------------------
-                // disable motor and wait for button press to switch to FLAT
-                m_IO_handler->disable_escon();
+        //         // switch to FLAT
+        //         if (do_transition) {
+        //             m_state = FLAT;
+        //             m_IO_handler->enable_escon();
+        //         }
+        //         break;
+        //     }
+        //     case FLAT: {
+        //         // ------------------- FLAT -------------------
 
-                // switch to FLAT
-                if (do_transition) {
-                    m_state = FLAT;
-                    m_IO_handler->enable_escon();
-                }
-                break;
-            }
-            case FLAT: {
-                // ------------------- FLAT -------------------
 
-                // --- AUFGABE 7.1 ---
-                // simple P controller
-                i_des = kp * (w - phi_fw_vel);
 
-                // // --- AUFGABE 7.5 ---
-                // i_des = kp * (w - phi_fw_vel + (exc + 4.0f * M_PIf));
+        //         // switch to BALANCE
+        //         if (do_transition) {
+        //             m_state = BALANCE;
+        //         }
+        //         break;
+        //     }
+        //     case BALANCE: {
+        //         // ------------------- BALANCE ----------------
 
-                // switch to BALANCE
-                if (do_transition) {
-                    m_state = BALANCE;
-                }
-                break;
-            }
-            case BALANCE: {
-                // ------------------- BALANCE ----------------
 
-                // // --- AUFGABE 5.2 ---
-                // // stabilizing state space controller for cube angle and angle velocity
-                // x2 << phi_bd, gz;
-                // const float M = -K2 * x2;
-                // i_des = M / km;
 
-                // --- AUFGABE 6.5 ---
-                // state space controller with integrator for velocity error
-                const float err = w - phi_fw_vel;
-                xi = saturate(xi + m_Ts * err, -5.0f * km / K4(3), 5.0f * km / K4(3));
-                x4 << phi_bd, gz, phi_fw_vel, xi;
-                const float M = -K4 * x4;
-                i_des = M / km;
+        //         // switch to FLAT
+        //         if (do_transition) {
+        //             m_state = FLAT;
+        //         }
+        //         break;
+        //     }
+        //     default:
+        //         break;
+        // }
 
-                // switch to FLAT
-                if (do_transition) {
-                    m_state = FLAT;
-                    xi = 0.0f; // if we go to FLAT, reset integrator state
-                }
-                // // switch to INIT
-                // if (do_transition) {
-                //     m_state = INIT;
-                //     xi = 0.0f; // if we go to FLAT, reset integrator state
-                // }
-                break;
-            }
-            default:
-                break;
-        }
+        // // write current setpoint to motor
+        // i_des = saturate(i_des, -15.0f, 15.0f);
+        // m_IO_handler->write_current(i_des);
 
-        // write current setpoint to motor
-        i_des = saturate(i_des, -15.0f, 15.0f);
-        m_IO_handler->write_current(i_des);
+        myDataLogger.write_to_log(time, phi_bd, 0.0f, 0.0f, 0.0f, 0.0f, 0.0f);
 
-        myDataLogger.write_to_log(time,
-                                  w,      // 1
-                                  i_des,  // 2
-                                  x4(0),  // 3
-                                  x4(1),  // 4
-                                  x4(2),  // 5
-                                  x4(3)); // 6
-
-        // GPA - do not overwrite exc if you want to excite via the GPA
-        exc = myGPA.update(i_des, phi_fw_vel); // GPA calculates future excitation exc(k+1)
+        // // GPA - do not overwrite exc if you want to excite via the GPA
+        // exc = myGPA.update(i_des, phi_fw_vel); // GPA calculates future excitation exc(k+1)
     }
 }
 
