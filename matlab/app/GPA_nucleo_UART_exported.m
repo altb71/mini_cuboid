@@ -470,12 +470,10 @@ classdef GPA_nucleo_UART_exported < matlab.apps.AppBase
 
             % Create NucleoconnectionUIFigure and hide until all components are created
             app.NucleoconnectionUIFigure = uifigure('Visible', 'off');
-            app.NucleoconnectionUIFigure.AutoResizeChildren = 'off';
             colormap(app.NucleoconnectionUIFigure, 'parula');
             app.NucleoconnectionUIFigure.Position = [300 300 652 334];
             app.NucleoconnectionUIFigure.Name = 'Nucleo connection';
             app.NucleoconnectionUIFigure.Icon = 'nuc.jpg';
-            app.NucleoconnectionUIFigure.Resize = 'off';
             app.NucleoconnectionUIFigure.CloseRequestFcn = createCallbackFcn(app, @NucleoconnectionUIFigureCloseRequest, true);
 
             % Create SearchCOMPortsButton
@@ -531,7 +529,6 @@ classdef GPA_nucleo_UART_exported < matlab.apps.AppBase
 
             % Create TimemeasuresPanel
             app.TimemeasuresPanel = uipanel(app.NucleoconnectionUIFigure);
-            app.TimemeasuresPanel.AutoResizeChildren = 'off';
             app.TimemeasuresPanel.Title = 'Time measures';
             app.TimemeasuresPanel.Position = [293 27 198 159];
 
@@ -575,7 +572,6 @@ classdef GPA_nucleo_UART_exported < matlab.apps.AppBase
             app.AmpEditField = uieditfield(app.TimemeasuresPanel, 'numeric');
             app.AmpEditField.Limits = [-5000 5000];
             app.AmpEditField.Position = [58 87 39 22];
-            app.AmpEditField.Value = 0.5;
 
             % Create FreqEditFieldLabel
             app.FreqEditFieldLabel = uilabel(app.TimemeasuresPanel);
@@ -587,7 +583,7 @@ classdef GPA_nucleo_UART_exported < matlab.apps.AppBase
             app.FreqEditField = uieditfield(app.TimemeasuresPanel, 'numeric');
             app.FreqEditField.Limits = [0.1 100];
             app.FreqEditField.Position = [59 60 38 22];
-            app.FreqEditField.Value = 10;
+            app.FreqEditField.Value = 0.2;
 
             % Create OffsetEditFieldLabel
             app.OffsetEditFieldLabel = uilabel(app.TimemeasuresPanel);
@@ -628,7 +624,6 @@ classdef GPA_nucleo_UART_exported < matlab.apps.AppBase
 
             % Create GPAPanel
             app.GPAPanel = uipanel(app.NucleoconnectionUIFigure);
-            app.GPAPanel.AutoResizeChildren = 'off';
             app.GPAPanel.Title = 'GPA';
             app.GPAPanel.Position = [12 27 258 159];
 
@@ -695,7 +690,7 @@ classdef GPA_nucleo_UART_exported < matlab.apps.AppBase
             app.GPA_A0 = uieditfield(app.GPAPanel, 'numeric');
             app.GPA_A0.Limits = [0 Inf];
             app.GPA_A0.Position = [201 67 42 22];
-            app.GPA_A0.Value = 1;
+            app.GPA_A0.Value = 6;
 
             % Create A1Label
             app.A1Label = uilabel(app.GPAPanel);
@@ -707,7 +702,7 @@ classdef GPA_nucleo_UART_exported < matlab.apps.AppBase
             app.GPA_A1 = uieditfield(app.GPAPanel, 'numeric');
             app.GPA_A1.Limits = [0 Inf];
             app.GPA_A1.Position = [201 43 42 22];
-            app.GPA_A1.Value = 2;
+            app.GPA_A1.Value = 4;
 
             % Create NLabel
             app.NLabel = uilabel(app.GPAPanel);
@@ -720,7 +715,7 @@ classdef GPA_nucleo_UART_exported < matlab.apps.AppBase
             app.GPA_N.Limits = [1 255];
             app.GPA_N.RoundFractionalValues = 'on';
             app.GPA_N.Position = [201 17 42 22];
-            app.GPA_N.Value = 60;
+            app.GPA_N.Value = 50;
 
             % Create MotNb1or2Label
             app.MotNb1or2Label = uilabel(app.GPAPanel);
@@ -762,7 +757,6 @@ classdef GPA_nucleo_UART_exported < matlab.apps.AppBase
 
             % Create IOValuesPanel
             app.IOValuesPanel = uipanel(app.NucleoconnectionUIFigure);
-            app.IOValuesPanel.AutoResizeChildren = 'off';
             app.IOValuesPanel.Title = 'I/O Values';
             app.IOValuesPanel.Position = [511 27 131 159];
 

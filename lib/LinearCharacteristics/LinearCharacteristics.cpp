@@ -18,6 +18,8 @@ void LinearCharacteristics::init(float gain, float offset)
 {
     m_gain = gain;
     m_offset = offset;
+    m_ulim = 999999.0f;  // a large number
+    m_llim = -999999.0f; // a large neg. number
 }
 
 void LinearCharacteristics::init(float xmin, float xmax, float ymin, float ymax)
