@@ -39,14 +39,7 @@ void IIR_Filter::differentiatingLowPass1Init(float tau, float Ts)
 
 float IIR_Filter::evaluate(const float u_k)
 {
-    // update filter output
-    const float y_k = m_b1 * u_k + m_b0 * m_u_kmin1 - m_a0 * m_y_kmin1;
-
-    // store values for next iteration
-    m_u_kmin1 = u_k;
-    m_y_kmin1 = y_k;
-
-    return y_k;
+    return 0.0f;
 }
 
 void IIR_Filter::reset(float u_kmin1, float y_kmin1)

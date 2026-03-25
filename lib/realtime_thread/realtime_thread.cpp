@@ -50,6 +50,8 @@ void realtime_thread::loop(void)
         const float gz = m_IO_handler->get_gz();
         const float phi_bd = m_IO_handler->get_phi_bd();
 
+        myDataLogger.write_to_log(time, phi_bd, 0.0f, 0.0f, 0.0f, 0.0f, 0.0f);
+
         // // state machine
         // float i_des = 0.0f;
         // const bool do_transition = m_IO_handler->get_and_reset_button_state();
@@ -95,8 +97,6 @@ void realtime_thread::loop(void)
         // // write current setpoint to motor
         // i_des = saturate(i_des, -15.0f, 15.0f);
         // m_IO_handler->write_current(i_des);
-
-        myDataLogger.write_to_log(time, phi_bd, 0.0f, 0.0f, 0.0f, 0.0f, 0.0f);
 
         // // GPA - do not overwrite exc if you want to excite via the GPA
         // exc = myGPA.update(i_des, phi_fw_vel); // GPA calculates future excitation exc(k+1)
