@@ -37,24 +37,21 @@ void realtime_thread::loop(void)
     // motor constant
     const float km = 36.9e-3f;
 
-    // // --- AUFGABE 5.2 ---
-    // // variables for stabilizing state space controller for cube angle and angle velocity
-    // Matrix<float, 1, 2> K2(-1.0557f, -0.0675f);
-    // Matrix<float, 2, 1> x2(0.0f, 0.0f);
+    // --- AUFGABE 5.2 ---
+    // variables for stabilizing state space controller for cube angle and angle velocity
+
 
     // --- AUFGABE 6.5 ---
     // variables for state space controller with integrator for velocity error
-    Matrix<float, 1, 4> K4(-2.1929f, -0.2016f, -0.0042f, 0.0100f);
-    Matrix<float, 4, 1> x4(0.0f, 0.0f, 0.0f, 0.0f);
-    float xi = 0.0f;
+
 
     // --- AUFGABE 7.1 ---
     // simple P controller gain
-    const float kp = 0.2f;
+
 
     // --- AUFGABE 7.5 ---
     // excitation signal for frequency response measurement
-    float exc = 0.0f;
+
 
     while (true) {
         ThisThread::flags_wait_any(m_ThreadFlag);
@@ -69,9 +66,9 @@ void realtime_thread::loop(void)
         const float gz = m_IO_handler->get_gz();
         const float phi_bd = m_IO_handler->get_phi_bd();
 
-        // // --- AUFGABE 3.2 ---
+        // --- AUFGABE 3.2 ---
         // log angle estimate from complementary filter
-        // myDataLogger.write_to_log(time, phi_bd, 0.0f, 0.0f, 0.0f, 0.0f, 0.0f);
+        myDataLogger.write_to_log(time, phi_bd, 0.0f, 0.0f, 0.0f, 0.0f, 0.0f);
 
         // state machine
         float i_des = 0.0f;
@@ -94,11 +91,11 @@ void realtime_thread::loop(void)
 
                 // --- AUFGABE 7.1 ---
                 // simple P controller
-                i_des = kp * (w - phi_fw_vel);
 
-                // // --- AUFGABE 7.5 ---
-                // // use P controller to measure the frequency response
-                // i_des = kp * (w - phi_fw_vel + (exc + 4.0f * M_PIf));
+
+                // --- AUFGABE 7.5 ---
+                // use P controller to measure the frequency response
+
 
                 // switch to BALANCE
                 if (do_transition) {
@@ -109,26 +106,20 @@ void realtime_thread::loop(void)
             case BALANCE: {
                 // ------------------- BALANCE ----------------
 
-                // // --- AUFGABE 5.2 ---
-                // // stabilizing state space controller for cube angle and angle velocity
-                // x2 << phi_bd, gz;
-                // const float M = -K2 * x2;
-                // i_des = M / km;
+                // --- AUFGABE 5.2 ---
+                // stabilizing state space controller for cube angle and angle velocity
+
 
                 // --- AUFGABE 6.5 ---
                 // state space controller with integrator for velocity error
-                const float err = w - phi_fw_vel;
-                xi = saturate(xi + m_Ts * err, -5.0f * km / K4(3), 5.0f * km / K4(3));
-                x4 << phi_bd, gz, phi_fw_vel, xi;
-                const float M = -K4 * x4;
-                i_des = M / km;
+
 
                 // switch to FLAT
                 if (do_transition) {
                     m_state = FLAT;
                     // --- AUFGABE 7.2 ---
                     // if we go to FLAT, reset integrator state
-                    xi = 0.0f;
+
                 }
                 break;
             }
@@ -139,23 +130,22 @@ void realtime_thread::loop(void)
         // write current setpoint to motor
         // --- AUFGABE 5.2 ---
         // limit current to +/-15 A
-        i_des = saturate(i_des, -15.0f, 15.0f);
+
 
         m_IO_handler->write_current(i_des);
 
-        // --- AUFGABE 7.4 ---
-        // log swing up and balancing data
-        myDataLogger.write_to_log(time,
-                                  w,      // 1
-                                  i_des,  // 2
-                                  x4(0),  // 3
-                                  x4(1),  // 4
-                                  x4(2),  // 5
-                                  x4(3)); // 6
+        // // --- AUFGABE 7.4 ---
+        // // log swing up and balancing data
+        // myDataLogger.write_to_log(time,
+        //                           w,     // 1
+        //                           i_des, // 2
+        //                           0.0f,  // 3
+        //                           0.0f,  // 4
+        //                           0.0f,  // 5
+        //                           0.0f); // 6
 
         // --- AUFGABE 7.5 ---
         // measure the frequency response, GPA calculates future excitation exc(k+1)
-        exc = myGPA.update(i_des, phi_fw_vel);
     }
 }
 
